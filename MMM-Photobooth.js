@@ -34,8 +34,8 @@ Module.register('MMM-Photobooth',
 		const capture_wrapper = document.createElement("span");
 		const video_wrapper = document.createElement("span");
 		const picture_wrapper = document.createElement("span");
-		const lights_on_wrapper = document.createElement("span");
-		const lights_off_wrapper = document.createElement("span");
+		const lights_on_wrapper = document.createElement("div");
+		const lights_off_wrapper = document.createElement("div");
 
 		const verticalVideoButton = this.createCaptureButton('Video', 'Vertical');
 		const horizontalVideoButton = this.createCaptureButton('Video', 'Horizontal');
@@ -67,10 +67,12 @@ Module.register('MMM-Photobooth',
 		wrapper.appendChild(capture_wrapper);
 		wrapper.appendChild(lights_off_wrapper);
 
+		lights_on_wrapper.className = 'lights-control-wrapper'
+		lights_off_wrapper.className = 'lights-control-wrapper'
 		capture_wrapper.className = 'capture-wrapper';
 		video_wrapper.className = 'button_wrapper';
 		picture_wrapper.className = 'button_wrapper';
-
+		wrapper.className = 'wrapper';
 		return wrapper;
 	},
 

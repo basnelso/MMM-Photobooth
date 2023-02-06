@@ -31,8 +31,14 @@
   flex-direction: row;
 }
 
-.warpper {
+.wrapper {
   display: inline-flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+}
+
+.lights-control-wrapper {
+  padding-bottom: 30px;
+  display: flex;
   align-items: center;
 }
