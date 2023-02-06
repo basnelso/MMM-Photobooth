@@ -71,7 +71,7 @@ Module.register('MMM-Photobooth',
 			}
 		})
 
-		buttonn.innerHTML = `${orientation} ${type}`;
+		button.innerHTML = `${orientation} ${type}`;
 		return button;
 	},
 

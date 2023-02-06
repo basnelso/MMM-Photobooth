@@ -33,7 +33,7 @@ ffmpeg -i $filename.ts -c:v copy -c:a copy -bsf:a aac_adtstoasc $filename.mp4
 
 sleep 3
 
-mv $filename.mp4 ~/MagicMirror/modules/MMM-1-Second-A-Day/videos/clips
+mv $filename.mp4 ~/MagicMirror/modules/MMM-Photobooth/videos/clips
 rm $filename.ts
 cd ..
 rm $filename.ts

@@ -1,7 +1,7 @@
 {
-  "name": "Magic-Mirror-Module-1-Second-A-Day",
+  "name": "Magic-Mirror-Module-Photobooth",
   "version": "1.0.0",
-  "description": "1-Second-A-Day module for Magic Mirror",
+  "description": "Photobooth module for Magic Mirror",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/garylchew/MMM-1-Second-A-Day"

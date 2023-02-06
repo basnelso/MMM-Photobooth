@@ -7,8 +7,8 @@ const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
-const TOKEN_PATH = './modules/MMM-1-Second-A-Day/token.json';
-const CREDENTIAL_PATH = './modules/MMM-1-Second-A-Day/credentials.json';
+const TOKEN_PATH = './modules/MMM-Photobooth/token.json';
+const CREDENTIAL_PATH = './modules/MMM-Photobooth/credentials.json';
 
 const MIME_FILE_TYPE = 'video/mp4';
 
