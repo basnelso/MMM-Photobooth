@@ -20,6 +20,7 @@ Module.register('MMM-Photobooth',
 	{
 		Log.info('Starting module: ' + this.name);
 		this.cameraState = {};
+		this.currentTemp = 'cool';
 	},
 
 	getStyles: function() {
@@ -36,23 +37,32 @@ Module.register('MMM-Photobooth',
 		const picture_wrapper = document.createElement("span");
 		const lights_on_wrapper = document.createElement("div");
 		const lights_off_wrapper = document.createElement("div");
+		const lightTempWrapper = document.createElement("span");
 
 		const verticalVideoButton = this.createCaptureButton('Video', 'Vertical');
 		const horizontalVideoButton = this.createCaptureButton('Video', 'Horizontal');
 		const verticalPicButton = this.createCaptureButton('Pic', 'Vertical');
 		const horizontalPicButton = this.createCaptureButton('Pic', 'Horizontal');
+
 		const lightOnButton = this.createLightControlButton('On');
 		const lightOffButton = this.createLightControlButton('Off');
 
+		const lightCoolButton = this.createLightTempButton('cool');
+		const lightMediumButton = this.createLightTempButton('medium');
+		const lightWarmButton = this.createLightTempButton('warm');
+
 		lights_on_wrapper.appendChild(lightOnButton);
+		lights_off_wrapper.appendChild(lightOffButton);
+
+		lightTempWrapper.appendChild(lightCoolButton);
+		lightTempWrapper.appendChild(lightMediumButton);
+		lightTempWrapper.appendChild(lightWarmButton);
 
 		video_wrapper.appendChild(verticalVideoButton);
 		video_wrapper.appendChild(horizontalVideoButton);
 
 		picture_wrapper.appendChild(verticalPicButton);
 		picture_wrapper.appendChild(horizontalPicButton);
-
-		lights_off_wrapper.appendChild(lightOffButton);
 
 		capture_wrapper.appendChild(video_wrapper);
 		capture_wrapper.appendChild(picture_wrapper);
@@ -63,13 +73,17 @@ Module.register('MMM-Photobooth',
 		link_text.innerHTML = this.config.linkText;
 		capture_wrapper.appendChild(link_text);
 
-		// if (this.config.useLights) {
-		// 	wrapper.appendChild(lights_on_wrapper);
-		// }
+		if (this.config.useLights) {
+			capture_wrapper.appendChild(lightTempWrapper);
+		}
+
+		if (this.config.useLights) {
+			wrapper.appendChild(lights_on_wrapper);
+		}
 		wrapper.appendChild(capture_wrapper);
-		// if (this.config.useLights) {
-		// 	wrapper.appendChild(lights_off_wrapper);
-		// }
+		if (this.config.useLights) {
+			wrapper.appendChild(lights_off_wrapper);
+		}
 
 		lights_on_wrapper.className = 'lights-control-wrapper'
 		lights_off_wrapper.className = 'lights-control-wrapper'
@@ -111,6 +125,19 @@ Module.register('MMM-Photobooth',
 		})
 
 		button.innerHTML = `Lights ${mode}`;
+		return button;
+	},
+
+	createLightTempButton: function(temp) {
+		button = document.createElement("span");
+
+		button.addEventListener('click', function () {
+			this.currentTemp = temp;
+		})
+
+		image = document.createElement("img");
+		image.src = `/pics/${temp}.png`
+		button.appendChild(image)
 		return button;
 	},
 
