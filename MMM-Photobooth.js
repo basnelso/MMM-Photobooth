@@ -32,11 +32,17 @@ Module.register('MMM-Photobooth',
 		const wrapper = document.createElement("div");
 		const video_wrapper = document.createElement("span");
 		const picture_wrapper = document.createElement("span");
+		const lights_on_wrapper = document.createElement("span");
+		const lights_off_wrapper = document.createElement("span");
 
 		const verticalVideoButton = this.createCaptureButton('Video', 'Vertical');
 		const horizontalVideoButton = this.createCaptureButton('Video', 'Horizontal');
 		const verticalPicButton = this.createCaptureButton('Pic', 'Vertical');
 		const horizontalPicButton = this.createCaptureButton('Pic', 'Horizontal');
+		const lightOnButton = this.createLightControlButton('On');
+		const lightOffButton = this.createLightControlButton('Off');
+
+		lights_on_wrapper.appendChild(lightOnButton);
 
 		video_wrapper.appendChild(verticalVideoButton);
 		video_wrapper.appendChild(horizontalVideoButton);
@@ -44,8 +50,12 @@ Module.register('MMM-Photobooth',
 		picture_wrapper.appendChild(verticalPicButton);
 		picture_wrapper.appendChild(horizontalPicButton);
 
+		lights_off_wrapper.appendChild(lightOffButton);
+
+		wrapper.appendChild(lights_on_wrapper);
 		wrapper.appendChild(video_wrapper);
 		wrapper.appendChild(picture_wrapper);
+		wrapper.appendChild(lights_off_wrapper);
 
 		var link_text = document.createElement("span");
 		link_text.innerHTML = this.config.linkText;
