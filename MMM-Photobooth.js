@@ -76,7 +76,7 @@ Module.register('MMM-Photobooth',
 		capture_wrapper.className = 'capture-wrapper';
 		video_wrapper.className = 'button_wrapper';
 		picture_wrapper.className = 'button_wrapper';
-		wrapper.className = 'wrapper';
+		wrapper.className = 'master-wrapper';
 		return wrapper;
 	},
 

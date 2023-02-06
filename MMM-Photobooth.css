@@ -31,7 +31,7 @@
   flex-direction: row;
 }
 
-.wrapper {
+.master-wrapper {
   display: inline-flex;
   flex-direction: row;
   align-items: center;
