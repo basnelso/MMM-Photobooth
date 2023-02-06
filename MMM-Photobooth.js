@@ -30,6 +30,8 @@ Module.register('MMM-Photobooth',
 	// Add in uploading/uploaded message
 	getDom: function() {
 		const wrapper = document.createElement("div");
+
+		const capture_wrapper = document.createElement("span");
 		const video_wrapper = document.createElement("span");
 		const picture_wrapper = document.createElement("span");
 		const lights_on_wrapper = document.createElement("span");
@@ -52,16 +54,20 @@ Module.register('MMM-Photobooth',
 
 		lights_off_wrapper.appendChild(lightOffButton);
 
-		wrapper.appendChild(lights_on_wrapper);
-		wrapper.appendChild(video_wrapper);
-		wrapper.appendChild(picture_wrapper);
-		wrapper.appendChild(lights_off_wrapper);
+		capture_wrapper.appendChild(video_wrapper);
+		capture_wrapper.appendChild(picture_wrapper);
+
+
 
 		var link_text = document.createElement("span");
 		link_text.innerHTML = this.config.linkText;
-		wrapper.appendChild(link_text);
+		capture_wrapper.appendChild(link_text);
 
-		wrapper.className = 'wrapper';
+		wrapper.appendChild(lights_on_wrapper);
+		wrapper.appendChild(capture_wrapper);
+		wrapper.appendChild(lights_off_wrapper);
+
+		capture_wrapper.className = 'capture-wrapper';
 		video_wrapper.className = 'button_wrapper';
 		picture_wrapper.className = 'button_wrapper';
 

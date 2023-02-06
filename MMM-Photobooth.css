@@ -18,7 +18,7 @@
   height: 30px;
 }
 
-.wrapper {
+.capture-wrapper {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -29,4 +29,10 @@
   width: 500px;
   display: inline-flex;
   flex-direction: row;
+}
+
+.warpper {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
 }
