@@ -21,6 +21,11 @@ Module.register('MMM-Photobooth',
 		Log.info('Starting module: ' + this.name);
 		this.cameraState = {};
 		this.currentTemp = 'cool';
+		this.lightTempIcons = {
+			'cool': 'https://raw.githubusercontent.com/basnelso/MMM-Photobooth/master/images/cool.png',
+			'medium': 'https://raw.githubusercontent.com/basnelso/MMM-Photobooth/master/images/medium.png',
+			'warm': 'https://raw.githubusercontent.com/basnelso/MMM-Photobooth/master/images/warm.png',
+		}
 	},
 
 	getStyles: function() {
@@ -64,14 +69,13 @@ Module.register('MMM-Photobooth',
 		picture_wrapper.appendChild(verticalPicButton);
 		picture_wrapper.appendChild(horizontalPicButton);
 
-		capture_wrapper.appendChild(video_wrapper);
-		capture_wrapper.appendChild(picture_wrapper);
-
-
 
 		var link_text = document.createElement("span");
 		link_text.innerHTML = this.config.linkText;
 		capture_wrapper.appendChild(link_text);
+
+		capture_wrapper.appendChild(video_wrapper);
+		capture_wrapper.appendChild(picture_wrapper);
 
 		if (this.config.useLights) {
 			capture_wrapper.appendChild(lightTempWrapper);
@@ -85,12 +89,14 @@ Module.register('MMM-Photobooth',
 			wrapper.appendChild(lights_off_wrapper);
 		}
 
+		lightTempWrapper.className = 'light-temp-wrapper'
 		lights_on_wrapper.className = 'lights-control-wrapper'
 		lights_off_wrapper.className = 'lights-control-wrapper'
 		capture_wrapper.className = 'capture-wrapper';
 		video_wrapper.className = 'button_wrapper';
 		picture_wrapper.className = 'button_wrapper';
 		wrapper.className = 'master-wrapper';
+
 		return wrapper;
 	},
 
@@ -130,13 +136,23 @@ Module.register('MMM-Photobooth',
 
 	createLightTempButton: function(temp) {
 		button = document.createElement("span");
-
+		
+		if (this.currentTemp == temp) {
+			button.className = 'light-temp-button temp-selected';
+		} else {
+			button.className = 'light-temp-button';
+		}
+		
+		var self = this;
 		button.addEventListener('click', function () {
-			this.currentTemp = temp;
+			self.currentTemp = temp;
+			self.updateDom();
 		})
 
 		image = document.createElement("img");
-		image.src = `/images/${temp}.png`
+		image.src = this.lightTempIcons[temp];
+		image.height = 50;
+		image.width = 50;
 		button.appendChild(image)
 		return button;
 	},
