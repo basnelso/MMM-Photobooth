@@ -136,7 +136,7 @@ Module.register('MMM-Photobooth',
 		})
 
 		image = document.createElement("img");
-		image.src = `./pics/${temp}.png`
+		image.src = `/images/${temp}.png`
 		button.appendChild(image)
 		return button;
 	},
