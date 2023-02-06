@@ -43,3 +43,7 @@
   display: flex;
   align-items: center;
 }
+
+.light-button {
+  width: 100px;
+}

@@ -63,9 +63,11 @@ Module.register('MMM-Photobooth',
 		link_text.innerHTML = this.config.linkText;
 		capture_wrapper.appendChild(link_text);
 
-		wrapper.appendChild(lights_on_wrapper);
 		wrapper.appendChild(capture_wrapper);
-		wrapper.appendChild(lights_off_wrapper);
+		if (this.config.useLights) {
+			wrapper.appendChild(lights_on_wrapper);
+			wrapper.appendChild(lights_off_wrapper);
+		}
 
 		lights_on_wrapper.className = 'lights-control-wrapper'
 		lights_off_wrapper.className = 'lights-control-wrapper'
@@ -95,7 +97,7 @@ Module.register('MMM-Photobooth',
 
 	createLightControlButton: function(mode) {
 		button = document.createElement("span");
-		button.className = 'capture-button';
+		button.className = 'capture-button light-button';
 		var self = this;
 		button.addEventListener('click', function () {
 			self.lightsOn();
