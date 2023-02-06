@@ -20,7 +20,7 @@
 
 .wrapper {
   display: inline-flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   font-size: 20px;
 }
@@ -28,5 +28,6 @@
 .button_wrapper {
   width: 500px;
   display: inline-flex;
-  flex-direction: row;
+  align-items: center;
+  flex-direction: column;
 }
