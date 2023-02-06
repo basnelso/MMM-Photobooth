@@ -98,7 +98,7 @@ Module.register('MMM-Photobooth',
 			}
 		})
 
-		buttonn.innerHTML = `Lights ${mode}`;
+		button.innerHTML = `Lights ${mode}`;
 		return button;
 	},
 
