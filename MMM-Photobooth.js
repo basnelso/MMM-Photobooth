@@ -63,9 +63,11 @@ Module.register('MMM-Photobooth',
 		link_text.innerHTML = this.config.linkText;
 		capture_wrapper.appendChild(link_text);
 
-		wrapper.appendChild(capture_wrapper);
 		if (this.config.useLights) {
 			wrapper.appendChild(lights_on_wrapper);
+		}
+		wrapper.appendChild(capture_wrapper);
+		if (this.config.useLights) {
 			wrapper.appendChild(lights_off_wrapper);
 		}
 
