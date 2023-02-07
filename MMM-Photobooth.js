@@ -124,7 +124,6 @@ Module.register('MMM-Photobooth',
 		button.className = 'capture-button light-button';
 		var self = this;
 		button.addEventListener('click', function () {
-			self.lightsOn();
 			if (mode == 'On' && !this.cameraDeployed) {
 				self.lightsOn();
 			} else if (mode == 'Off' && this.cameraDeployed) {
