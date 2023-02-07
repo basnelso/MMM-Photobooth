@@ -59,3 +59,28 @@
   border-width: 2px;
   border-radius: 15px;
 }
+
+.white-background {
+  position: relative;
+  left: 0px;
+  top: -250px;
+  height: 1200px;
+  width: 2009px;
+  border: 1px solid #ffffff;
+  background: white;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.countdown-left {
+  font-size: 300px;
+  color: black;
+  margin-right: 400px;
+}
+
+.countdown-right {
+  font-size: 300px;
+  color: black;
+  margin-left: 400px;
+}

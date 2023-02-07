@@ -27,6 +27,7 @@ Module.register('MMM-Photobooth',
 			'warm': 'https://raw.githubusercontent.com/basnelso/MMM-Photobooth/master/images/warm.png',
 		}
 		this.cameraDeployed = false;
+		this.takingPicture = 0
 	},
 
 	getStyles: function() {
@@ -36,6 +37,26 @@ Module.register('MMM-Photobooth',
 	// Add in buttons to control lights and pick the color tempurature
 	// Add in uploading/uploaded message
 	getDom: function() {
+		if (this.pictureTimer > 0) {
+			console.log("picture is beign taken")
+			const whiteBackground = document.createElement("div");
+			whiteBackground.className = 'white-background'
+
+			const countdownLeft = document.createElement("p");
+			countdownLeft.className = "countdown-left";
+			countdownLeft.appendChild(document.createTextNode(this.pictureTimer))
+
+			const countdownRight = document.createElement("p")
+			countdownRight.className = "countdown-right";
+			countdownRight.appendChild(document.createTextNode(this.pictureTimer))
+
+			whiteBackground.appendChild(countdownLeft);
+			whiteBackground.appendChild(countdownRight);
+			return whiteBackground;
+		}
+
+		console.log("picture not being taken")
+
 		const wrapper = document.createElement("div");
 
 		const capture_wrapper = document.createElement("span");
@@ -204,6 +225,8 @@ Module.register('MMM-Photobooth',
 
 	takePicture: function (orientation) {
 		this.sendSocketNotification('TAKE_PICTURE', orientation);
+		this.pictureTimer = 6
+		this.updatePictureTimer();
 	},
 
 	socketNotificationReceived: function(notification, payload) {
@@ -218,6 +241,20 @@ Module.register('MMM-Photobooth',
 		if (sender?.name == 'MMM-PhillipsHueController' && notification == 'SAVE_LIGHT_STATE') { // Recieve this from the
 			console.log('Photobooth is saving the following camera state:', payload);
 			this.cameraState = payload;
+		}
+	},
+
+	updatePictureTimer: function() {
+		this.pictureTimer -= 1;
+		this.updateDom();
+
+		self = this;
+
+		if (this.pictureTimer > 0) {
+			console.log("pic timer is greater than 0", this.pictureTimer)
+			setTimeout(function () {
+				self.updatePictureTimer();
+			}, 1000);
 		}
 	}
 });
