@@ -179,6 +179,7 @@ Module.register('MMM-Photobooth',
 	lightsOff: function() {
 		if (this.cameraDeployed) {
 			this.cameraDeployed = false;
+			console.log("switching lights back, the saved state is:", this.cameraState)
 			this.sendNotification('REVERSE_LIGHTS_BACK', this.cameraState)
 
 			payload = {
