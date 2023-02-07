@@ -151,7 +151,7 @@ Module.register('MMM-Photobooth',
 		button.addEventListener('click', function () {
 			self.currentTemp = temp;
 			self.updateDom();
-			if (this.cameraDeployed) {
+			if (self.cameraDeployed) {
 				this.sendNotification('CHANGE_TEMP', temp)
 			}
 		})
