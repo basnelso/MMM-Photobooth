@@ -26,6 +26,7 @@ Module.register('MMM-Photobooth',
 			'medium': 'https://raw.githubusercontent.com/basnelso/MMM-Photobooth/master/images/medium.png',
 			'warm': 'https://raw.githubusercontent.com/basnelso/MMM-Photobooth/master/images/warm.png',
 		}
+		this.cameraDeployed = false;
 	},
 
 	getStyles: function() {
@@ -148,6 +149,9 @@ Module.register('MMM-Photobooth',
 		button.addEventListener('click', function () {
 			self.currentTemp = temp;
 			self.updateDom();
+			if (this.cameraDeployed) {
+				this.sendNotification('CHANGE_TEMP', temp)
+			}
 		})
 
 		image = document.createElement("img");
@@ -159,6 +163,7 @@ Module.register('MMM-Photobooth',
 	},
 
 	lightsOn: function() {
+		this.cameraDeployed = true;
 		this.sendNotification('LIGHTS_ON', this.currentTemp); // Send to hue module
 	
 		payload = {
@@ -170,6 +175,7 @@ Module.register('MMM-Photobooth',
 	},
 
 	lightsOff: function() {
+		this.cameraDeployed = false;
 		this.sendNotification('REVERSE_LIGHTS_BACK', this.cameraState)
 
 		payload = {
