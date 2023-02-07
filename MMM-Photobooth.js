@@ -202,7 +202,7 @@ Module.register('MMM-Photobooth',
     },
 
 	notificationReceived: function(notification, payload, sender) {
-		if (sender?.name = 'MMM-PhillipsHueController' && notification == 'SAVE_LIGHT_STATE') { // Recieve this from the
+		if (sender?.name == 'MMM-PhillipsHueController' && notification == 'SAVE_LIGHT_STATE') { // Recieve this from the
 			this.cameraState = payload;
 		}
 	}
