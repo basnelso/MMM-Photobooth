@@ -64,8 +64,8 @@
   position: relative;
   left: 0px;
   top: -250px;
-  height: 1200px;
-  width: 2009px;
+  height: 110vh;
+  width: 100vw;
   border: 1px solid #ffffff;
   background: white;
   display: flex;
