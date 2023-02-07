@@ -149,7 +149,7 @@ Module.register('MMM-Photobooth',
 			self.currentTemp = temp;
 			self.updateDom();
 			if (self.cameraDeployed) {
-				this.sendNotification('CHANGE_TEMP', temp)
+				self.sendNotification('CHANGE_TEMP', temp)
 			}
 		})
 
