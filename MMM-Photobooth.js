@@ -105,6 +105,7 @@ Module.register('MMM-Photobooth',
 		button.className = 'capture-button';
 		var self = this;
 		button.addEventListener('click', function () {
+			console.log('capture button clicked')
 			self.lightsOn();
 			if (type == 'video') {
 				self.recordClip(orientation);

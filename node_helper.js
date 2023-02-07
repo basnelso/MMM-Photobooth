@@ -152,13 +152,13 @@ module.exports = NodeHelper.create({
 		urlencoded.append("arg", payload.command);
 
 		var requestOptions = {
-		method: 'POST',
-		headers: myHeaders,
-		body: urlencoded,
-		redirect: 'follow'
+			method: 'POST',
+			headers: myHeaders,
+			body: urlencoded,
+			redirect: 'follow'
 		};
 
-		var endpoint = "https://api.particle.io/v1/devices/${payload.deviceId}/moveLights";
+		var endpoint = `https://api.particle.io/v1/devices/${payload.deviceId}/moveLights`;
 		fetch(endpoint, requestOptions)
 		.then(response => response.text())
 		.then(result => console.log(result))
