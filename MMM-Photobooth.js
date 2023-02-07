@@ -189,6 +189,7 @@ Module.register('MMM-Photobooth',
 	},
 
 	takePicture: function (orientation) {
+		console.log("about to take pic from frontend");
 		this.sendSocketNotification('TAKE_PICTURE', orientation);
 	},
 

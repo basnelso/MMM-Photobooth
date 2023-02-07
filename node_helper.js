@@ -161,7 +161,7 @@ module.exports = NodeHelper.create({
 		var endpoint = `https://api.particle.io/v1/devices/${payload.deviceId}/moveLights`;
 		fetch(endpoint, requestOptions)
 		.then(response => response.text())
-		.then(result => console.log(result))
-		.catch(error => console.log('error', error));
+		.then(result => console.log("Got result from particle", result))
+		.catch(error => console.log('error from particle:', error));
 	}
 });
