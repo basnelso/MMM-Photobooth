@@ -127,7 +127,7 @@ Module.register('MMM-Photobooth',
 			self.lightsOn();
 			if (mode == 'On' && !this.cameraDeployed) {
 				self.lightsOn();
-			} else if (mode == 'Off') {
+			} else if (mode == 'Off' && this.cameraDeployed) {
 				self.lightsOff();
 			}
 		})
@@ -163,27 +163,31 @@ Module.register('MMM-Photobooth',
 	},
 
 	lightsOn: function() {
-		this.cameraDeployed = true;
-		this.sendNotification('LIGHTS_ON', this.currentTemp); // Send to hue module
-	
-		payload = {
-			'command': 'useBooth',
-			'bearer': this.config.bearer,
-			'deviceId': this.config.deviceId
+		if (!this.cameraDeployed) {
+			this.cameraDeployed = true;
+			this.sendNotification('LIGHTS_ON', this.currentTemp); // Send to hue module
+		
+			payload = {
+				'command': 'useBooth',
+				'bearer': this.config.bearer,
+				'deviceId': this.config.deviceId
+			}
+			this.sendSocketNotification('MOVE_LIGHTS', payload); // Send to node helper
 		}
-		this.sendSocketNotification('MOVE_LIGHTS', payload); // Send to node helper
 	},
 
 	lightsOff: function() {
-		this.cameraDeployed = false;
-		this.sendNotification('REVERSE_LIGHTS_BACK', this.cameraState)
+		if (this.cameraDeployed) {
+			this.cameraDeployed = false;
+			this.sendNotification('REVERSE_LIGHTS_BACK', this.cameraState)
 
-		payload = {
-			'command': 'lightWall',
-			'bearer': this.config.bearer,
-			'deviceId': this.config.deviceId
+			payload = {
+				'command': 'lightWall',
+				'bearer': this.config.bearer,
+				'deviceId': this.config.deviceId
+			}
+			this.sendSocketNotification('MOVE_LIGHTS', payload);
 		}
-		this.sendSocketNotification('MOVE_LIGHTS', payload);
 	},
 
 	recordClip: function (orientation) {
