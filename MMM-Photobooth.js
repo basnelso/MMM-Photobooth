@@ -162,7 +162,7 @@ Module.register('MMM-Photobooth',
 		this.sendNotification('LIGHTS_ON'); // Send to hue module
 	
 		payload = {
-			'command': 'boothOn',
+			'command': 'useBooth',
 			'bearer': this.config.bearer,
 			'deviceId': this.config.deviceId
 		}
