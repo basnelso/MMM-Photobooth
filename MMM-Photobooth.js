@@ -159,7 +159,7 @@ Module.register('MMM-Photobooth',
 	},
 
 	lightsOn: function() {
-		this.sendNotification('LIGHTS_ON'); // Send to hue module
+		this.sendNotification('LIGHTS_ON', this.currentTemp); // Send to hue module
 	
 		payload = {
 			'command': 'useBooth',
