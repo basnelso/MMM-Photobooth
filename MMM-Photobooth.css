@@ -71,16 +71,20 @@
   display: flex;
   flex-direction: row;
   justify-content: space-around;
+  z-index:-1;
+  align-items: center;
 }
 
 .countdown-left {
   font-size: 300px;
   color: black;
   margin-right: 400px;
+  z-index:-1
 }
 
 .countdown-right {
   font-size: 300px;
   color: black;
   margin-left: 400px;
+  z-index:-1
 }

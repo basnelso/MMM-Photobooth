@@ -91,7 +91,6 @@ Module.register('MMM-Photobooth',
 		picture_wrapper.appendChild(verticalPicButton);
 		picture_wrapper.appendChild(horizontalPicButton);
 
-
 		var link_text = document.createElement("span");
 		link_text.innerHTML = this.config.linkText;
 		capture_wrapper.appendChild(link_text);
