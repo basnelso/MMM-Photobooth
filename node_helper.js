@@ -8,7 +8,7 @@ const fetch = require('node-fetch');
 const url = require('url');
 
 const VIDEO_PATH = './modules/MMM-Photobooth/videos/clips/';
-const IMAGE_PATH = './modules/MMM-1-Photobooth/pictures/clips/';
+const IMAGE_PATH = './modules/MMM-Photobooth/pictures/clips/';
 
 module.exports = NodeHelper.create({
 	start: function () {
@@ -16,6 +16,7 @@ module.exports = NodeHelper.create({
 	},
 
 	socketNotificationReceived: function (notification, payload) {
+		console.log("received socket notification", notification);
 		switch (notification) {
 			case "MOVE_LIGHTS":
 				this.moveLights(payload)
@@ -100,6 +101,7 @@ module.exports = NodeHelper.create({
 	},
 
 	takePicture: function (orientation) {
+		console.log("in takepicture function in node helper")
 		const filename = 'pic_' + moment().format('YYYY[_]MM[_]DD[_]h:mm:ss');
 		var myCamera = null;
 		var self = this;
