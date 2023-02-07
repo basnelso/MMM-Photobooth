@@ -163,6 +163,7 @@ Module.register('MMM-Photobooth',
 	},
 
 	lightsOn: function() {
+		console.log("lightsOn function called", this.cameraDeployed)
 		if (!this.cameraDeployed) {
 			this.cameraDeployed = true;
 			this.sendNotification('LIGHTS_ON', this.currentTemp); // Send to hue module
@@ -177,6 +178,7 @@ Module.register('MMM-Photobooth',
 	},
 
 	lightsOff: function() {
+		console.log("lightsOff function called", this.cameraDeployed)
 		if (this.cameraDeployed) {
 			this.cameraDeployed = false;
 			this.sendNotification('REVERSE_LIGHTS_BACK', this.cameraState)
