@@ -125,10 +125,10 @@ Module.register('MMM-Photobooth',
 		var self = this;
 		button.addEventListener('click', function () {
 			console.log('light control button clicked', mode)
-			console.log('camera is deployeed?', this.cameraDeployed)
-			if (mode == 'On' && !this.cameraDeployed) {
+			console.log('camera is deployeed?', self.cameraDeployed)
+			if (mode == 'On' && !self.cameraDeployed) {
 				self.lightsOn();
-			} else if (mode == 'Off' && this.cameraDeployed) {
+			} else if (mode == 'Off' && self.cameraDeployed) {
 				console.log('in mode off abou to call lights off')
 				self.lightsOff();
 			}
