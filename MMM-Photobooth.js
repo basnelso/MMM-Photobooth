@@ -107,9 +107,9 @@ Module.register('MMM-Photobooth',
 		button.addEventListener('click', function () {
 			console.log('capture button clicked')
 			self.lightsOn();
-			if (type == 'video') {
+			if (type == 'Video') {
 				self.recordClip(orientation);
-			} else if (type == 'pic') {
+			} else if (type == 'Pic') {
 				self.takePicture(orientation);
 			}
 		})
