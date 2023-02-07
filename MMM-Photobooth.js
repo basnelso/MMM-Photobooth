@@ -126,7 +126,7 @@ Module.register('MMM-Photobooth',
 		button.addEventListener('click', function () {
 			if (mode == 'On' && !self.cameraDeployed) {
 				self.lightsOn();
-			} else if (mode == 'Off' && self.cameraDeployed) {
+			} else if (mode == 'Off') {
 				self.lightsOff();
 			}
 		})
@@ -189,7 +189,7 @@ Module.register('MMM-Photobooth',
 			}
 			this.sendSocketNotification('MOVE_LIGHTS', payload);
 		} else {
-			console.log('camera is deployed but going to try to switch color back still')
+			console.log('camera is deployed but going to try to switch color back still', this.cameraState)
 			this.sendNotification('REVERSE_LIGHTS_BACK', this.cameraState)
 		}
 	},
