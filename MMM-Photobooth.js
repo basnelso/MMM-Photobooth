@@ -149,6 +149,7 @@ Module.register('MMM-Photobooth',
 			self.currentTemp = temp;
 			self.updateDom();
 			if (self.cameraDeployed) {
+				console.log("camera is deployed so going to change the color temp to", temp)
 				self.sendNotification('CHANGE_TEMP', temp)
 			}
 		})
@@ -162,7 +163,6 @@ Module.register('MMM-Photobooth',
 	},
 
 	lightsOn: function() {
-		console.log("lightsOn function called", this.cameraDeployed)
 		if (!this.cameraDeployed) {
 			this.cameraDeployed = true;
 			this.sendNotification('LIGHTS_ON', this.currentTemp); // Send to hue module
@@ -177,7 +177,6 @@ Module.register('MMM-Photobooth',
 	},
 
 	lightsOff: function() {
-		console.log("lightsOff function called", this.cameraDeployed)
 		if (this.cameraDeployed) {
 			this.cameraDeployed = false;
 			this.sendNotification('REVERSE_LIGHTS_BACK', this.cameraState)
@@ -188,6 +187,9 @@ Module.register('MMM-Photobooth',
 				'deviceId': this.config.deviceId
 			}
 			this.sendSocketNotification('MOVE_LIGHTS', payload);
+		} else {
+			console.log('camera is deployed but going to try to switch color back still')
+			this.sendNotification('REVERSE_LIGHTS_BACK', this.cameraState)
 		}
 	},
 
@@ -200,7 +202,6 @@ Module.register('MMM-Photobooth',
 	},
 
 	takePicture: function (orientation) {
-		console.log("about to take pic from frontend");
 		this.sendSocketNotification('TAKE_PICTURE', orientation);
 	},
 
@@ -214,6 +215,7 @@ Module.register('MMM-Photobooth',
 
 	notificationReceived: function(notification, payload, sender) {
 		if (sender?.name == 'MMM-PhillipsHueController' && notification == 'SAVE_LIGHT_STATE') { // Recieve this from the
+			console.log('Photobooth is saving the following camera state:', payload);
 			this.cameraState = payload;
 		}
 	}
