@@ -125,7 +125,7 @@ Module.register('MMM-Photobooth',
 		var self = this;
 		button.addEventListener('click', function () {
 			self.lightsOn();
-			if (mode == 'On') {
+			if (mode == 'On' && !this.cameraDeployed) {
 				self.lightsOn();
 			} else if (mode == 'Off') {
 				self.lightsOff();
