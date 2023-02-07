@@ -127,8 +127,10 @@ module.exports = NodeHelper.create({
 			});
 		}
 
+		console.log('about to take a picture')
 		myCamera.snap()
 			.then((result) => {
+				console.log('got result:')
 				console.log(result);
 				self.sendSocketNotification('REVERSE_LIGHTS_BACK');
 				self.sendSocketNotification('UPLOAD_CLIP');
