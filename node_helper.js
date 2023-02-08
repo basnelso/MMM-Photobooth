@@ -109,8 +109,8 @@ module.exports = NodeHelper.create({
 			myCamera = new PiCamera({
 				mode: 'photo',
 				output: `${IMAGE_PATH}/${filename}.jpg`,
-				width: 1920,
-				height: 1080,
+				width: 2592,
+				height: 1944,
 				nopreview: false,
 				vflip: true,
 				fullscreen: false,
@@ -120,8 +120,8 @@ module.exports = NodeHelper.create({
 			myCamera = new PiCamera({
 				mode: 'photo',
 				output: `${IMAGE_PATH}/${filename}.jpg`,
-				width: 1080,
-				height: 1920,
+				width: 1944,
+				height: 2592,
 				nopreview: false,
 				vflip: true,
 				fullscreen: false,
