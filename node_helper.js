@@ -109,8 +109,8 @@ module.exports = NodeHelper.create({
 			myCamera = new PiCamera({
 				mode: 'photo',
 				output: `${IMAGE_PATH}/${filename}.jpg`,
-				width: 2592,
-				height: 1944,
+				width: 1920,
+				height: 1080,
 				nopreview: false,
 				vflip: true,
 				fullscreen: false,
@@ -120,8 +120,8 @@ module.exports = NodeHelper.create({
 			myCamera = new PiCamera({
 				mode: 'photo',
 				output: `${IMAGE_PATH}/${filename}.jpg`,
-				width: 1944,
-				height: 2592,
+				width: 1080,
+				height: 1920,
 				nopreview: false,
 				vflip: true,
 				fullscreen: false,
@@ -161,7 +161,7 @@ module.exports = NodeHelper.create({
 		var endpoint = `https://api.particle.io/v1/devices/${payload.deviceId}/moveLights`;
 		fetch(endpoint, requestOptions)
 		.then(response => response.text())
-		.then(result => console.log("Got result from particle", result))
+		.then(result => console.log("Got result from particle",result))
 		.catch(error => console.log('error from particle:', error));
 	}
 });
