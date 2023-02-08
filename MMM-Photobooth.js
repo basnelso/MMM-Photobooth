@@ -38,7 +38,6 @@ Module.register('MMM-Photobooth',
 	// Add in uploading/uploaded message
 	getDom: function() {
 		if (this.pictureTimer >= 0) {
-			console.log("picture is beign taken")
 			const whiteBackground = document.createElement("div");
 			whiteBackground.className = 'white-background'
 
@@ -55,12 +54,15 @@ Module.register('MMM-Photobooth',
 				countdownRight.appendChild(document.createTextNode("X"))
 			}
 
+			const arrow = document.createElement("p");
+			arrow.className = "arrow";
+			arrow.innerHTML = `&#x2191;`
+
 			whiteBackground.appendChild(countdownLeft);
 			whiteBackground.appendChild(countdownRight);
+			whiteBackground.appendChild(arrow);
 			return whiteBackground;
 		}
-
-		console.log("picture not being taken")
 
 		const wrapper = document.createElement("div");
 
@@ -182,7 +184,7 @@ Module.register('MMM-Photobooth',
 		lightTempImage = document.createElement("img");
 		lightTempImage.src = this.lightTempIcons[temp];
 		lightTempImage.className = "light-temp-image";
-		
+
 		button.appendChild(lightTempImage)
 		return button;
 	},
