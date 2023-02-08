@@ -37,18 +37,23 @@ Module.register('MMM-Photobooth',
 	// Add in buttons to control lights and pick the color tempurature
 	// Add in uploading/uploaded message
 	getDom: function() {
-		if (this.pictureTimer > 0) {
+		if (this.pictureTimer >= 0) {
 			console.log("picture is beign taken")
 			const whiteBackground = document.createElement("div");
 			whiteBackground.className = 'white-background'
 
 			const countdownLeft = document.createElement("p");
 			countdownLeft.className = "countdown-left";
-			countdownLeft.appendChild(document.createTextNode(this.pictureTimer))
-
 			const countdownRight = document.createElement("p")
 			countdownRight.className = "countdown-right";
-			countdownRight.appendChild(document.createTextNode(this.pictureTimer))
+
+			if (this.pictureTimer > 0) {
+				countdownLeft.appendChild(document.createTextNode(this.pictureTimer))
+				countdownRight.appendChild(document.createTextNode(this.pictureTimer))
+			} else {
+				countdownLeft.appendChild(document.createTextNode("X"))
+				countdownRight.appendChild(document.createTextNode("X"))
+			}
 
 			whiteBackground.appendChild(countdownLeft);
 			whiteBackground.appendChild(countdownRight);
@@ -230,6 +235,7 @@ Module.register('MMM-Photobooth',
 
 	socketNotificationReceived: function(notification, payload) {
 		if (notification == 'UPLOAD_CLIP') {
+			this.pictureTimer = -1;
 			this.sendSocketNotification(notification, this.config.driveDestination);
 		} else if (notification == 'REVERSE_LIGHTS_BACK') {
 			this.lightsOff()
@@ -249,7 +255,7 @@ Module.register('MMM-Photobooth',
 
 		self = this;
 
-		if (this.pictureTimer > 1) {
+		if (this.pictureTimer > 0) {
 			console.log("pic timer is greater than 0", this.pictureTimer)
 			setTimeout(function () {
 				self.updatePictureTimer();
