@@ -27,7 +27,8 @@ Module.register('MMM-Photobooth',
 			'warm': 'https://raw.githubusercontent.com/basnelso/MMM-Photobooth/master/images/warm.png',
 		}
 		this.cameraDeployed = false;
-		this.takingPicture = 0
+		this.pictureTimer = 0
+		this.orientation = ''
 	},
 
 	getStyles: function() {
@@ -66,6 +67,16 @@ Module.register('MMM-Photobooth',
 			arrowl.className = "arrow";
 			arrowc.className = "arrow";
 			arrowr.className = "arrow";
+
+			if (this.orientation == 'Horizontal') {
+				arrowl.color = 'black';
+				arrowr.color = 'black';
+			} else if (this.orientation == 'Vertical') {
+				arrowc.color = 'black';
+			} else {
+				console.log("unidentified orientation")
+			}
+
 
 			arrows.appendChild(arrowl);
 			arrows.appendChild(arrowc);
@@ -145,6 +156,7 @@ Module.register('MMM-Photobooth',
 	createCaptureButton: function(type, orientation) {
 		button = document.createElement("span");
 		button.className = 'capture-button';
+		this.orientation = orientation;
 		var self = this;
 		button.addEventListener('click', function () {
 			console.log('capture button clicked')
