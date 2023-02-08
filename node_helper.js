@@ -125,7 +125,7 @@ module.exports = NodeHelper.create({
 				nopreview: false,
 				vflip: true,
 				fullscreen: false,
-				preview: '987,0,720,1280'
+				preview: '800,0,720,1280' //987
 			});
 		}
 
