@@ -54,13 +54,27 @@ Module.register('MMM-Photobooth',
 				countdownRight.appendChild(document.createTextNode("X"))
 			}
 
-			const arrow = document.createElement("p");
-			arrow.className = "arrow";
-			arrow.innerHTML = `&#x2191;`
+			const arrows = document.createElement("div");
+			arrows.className = "arrows";
+
+			const arrowl = document.createElement("p");
+			const arrowc = document.createElement("p");
+			const arrowr = document.createElement("p");
+			arrowl.innerHTML = `&#x2197;`
+			arrowc.innerHTML = `&#x2191;`
+			arrowr.innerHTML = `&#x2196;`
+			arrowl.className = "arrow";
+			arrowc.className = "arrow";
+			arrowr.className = "arrow";
+
+			arrows.appendChild(arrowl);
+			arrows.appendChild(arrowc);
+			arrows.appendChild(arrowr);
 
 			whiteBackground.appendChild(countdownLeft);
 			whiteBackground.appendChild(countdownRight);
-			whiteBackground.appendChild(arrow);
+			whiteBackground.appendChild(arrows);
+
 			return whiteBackground;
 		}
 

@@ -99,10 +99,18 @@
   height: 50px;
 }
 
-.arrow {
+.arrows {
   font-size: 300px;
   color: white;
   position: fixed;
+  display: flex;
+  flex-direction: row;
+  top: 10vh;
+}
+
+.arrow {
   margin-top: 0px;
+  margin-right: 100px;
+  margin-left: 100px;
   top: 10vh;
 }
