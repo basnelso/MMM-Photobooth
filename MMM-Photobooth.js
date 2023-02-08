@@ -236,6 +236,7 @@ Module.register('MMM-Photobooth',
 	socketNotificationReceived: function(notification, payload) {
 		if (notification == 'UPLOAD_CLIP') {
 			this.pictureTimer = -1;
+			this.updateDom();
 			this.sendSocketNotification(notification, this.config.driveDestination);
 		} else if (notification == 'REVERSE_LIGHTS_BACK') {
 			this.lightsOff()
