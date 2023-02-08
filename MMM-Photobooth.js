@@ -249,7 +249,7 @@ Module.register('MMM-Photobooth',
 
 		self = this;
 
-		if (this.pictureTimer > 0) {
+		if (this.pictureTimer > 1) {
 			console.log("pic timer is greater than 0", this.pictureTimer)
 			setTimeout(function () {
 				self.updatePictureTimer();
