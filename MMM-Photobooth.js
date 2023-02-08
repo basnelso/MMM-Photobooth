@@ -27,7 +27,7 @@ Module.register('MMM-Photobooth',
 			'warm': 'https://raw.githubusercontent.com/basnelso/MMM-Photobooth/master/images/warm.png',
 		}
 		this.cameraDeployed = false;
-		this.pictureTimer = 0
+		this.pictureTimer = -1
 		this.orientation = ''
 	},
 
