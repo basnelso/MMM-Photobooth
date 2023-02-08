@@ -101,7 +101,6 @@
 
 .arrows {
   font-size: 300px;
-  color: white;
   position: fixed;
   display: flex;
   flex-direction: row;
@@ -109,6 +108,15 @@
 }
 
 .arrow {
+  color: white;
+  margin-top: 0px;
+  margin-right: 150px;
+  margin-left: 150px;
+  top: 10vh;
+}
+
+.hidden-arrow {
+  color: black;
   margin-top: 0px;
   margin-right: 150px;
   margin-left: 150px;

@@ -69,10 +69,12 @@ Module.register('MMM-Photobooth',
 			arrowr.className = "arrow";
 
 			if (this.orientation == 'Horizontal') {
-				arrowl.color = 'black';
-				arrowr.color = 'black';
+				console.log("horizontal photo")
+				arrowl.className = 'hidden-arrow';
+				arrowr.className = 'hidden-arrow';
 			} else if (this.orientation == 'Vertical') {
-				arrowc.color = 'black';
+				console.log('vertical photo')
+				arrowc.className = 'hidden-arrow';
 			} else {
 				console.log("unidentified orientation")
 			}
@@ -156,10 +158,9 @@ Module.register('MMM-Photobooth',
 	createCaptureButton: function(type, orientation) {
 		button = document.createElement("span");
 		button.className = 'capture-button';
-		this.orientation = orientation;
 		var self = this;
 		button.addEventListener('click', function () {
-			console.log('capture button clicked')
+			self.orientation = orientation
 			self.lightsOn();
 			if (type == 'Video') {
 				self.recordClip(orientation);
