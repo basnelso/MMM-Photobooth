@@ -67,7 +67,7 @@
   height: 110vh;
   width: 100vw;
   border: 1px solid #ffffff;
-  background: white;
+  background: black;
   display: flex;
   flex-direction: row;
   justify-content: space-around;
@@ -82,6 +82,6 @@
 
 .countdown-right {
   font-size: 300px;
-  color: black;
+  color: white;
   margin-left: 400px;
 }
