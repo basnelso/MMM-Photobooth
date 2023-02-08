@@ -179,11 +179,11 @@ Module.register('MMM-Photobooth',
 			}
 		})
 
-		image = document.createElement("img");
-		image.src = this.lightTempIcons[temp];
-		image.height = 50;
-		image.width = 50;
-		button.appendChild(image)
+		lightTempImage = document.createElement("img");
+		lightTempImage.src = this.lightTempIcons[temp];
+		lightTempImage.className = "light-temp-image";
+		
+		button.appendChild(lightTempImage)
 		return button;
 	},
 
