@@ -262,13 +262,15 @@ Module.register('MMM-Photobooth',
 
 	socketNotificationReceived: function(notification, payload) {
 		if (notification == 'UPLOAD_CLIP') {
+			console.log('preview window open notification reveived');
 			this.pictureTimer = -1;
 			this.updateDom();
 			this.sendSocketNotification(notification, this.config.driveDestination);
 		} else if (notification == 'REVERSE_LIGHTS_BACK') {
 			this.lightsOff()
 		} else if (notication == 'PREVIEW_WINDOW_OPENED') {
-			this.pictureTimer = 6
+			console.log('preview window open notification reveived');
+			this.pictureTimer = 6;
 			this.updatePictureTimer();
 		}
     },
