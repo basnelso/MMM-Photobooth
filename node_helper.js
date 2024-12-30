@@ -6,6 +6,7 @@ const { spawn } = require("child_process");
 const PiCamera = require('pi-camera');
 const fetch = require('node-fetch');
 const url = require('url');
+const { exec } = require('child_process');
 
 const VIDEO_PATH = './modules/MMM-Photobooth/videos/clips/';
 const IMAGE_PATH = './modules/MMM-Photobooth/pictures/clips/';
@@ -117,15 +118,20 @@ module.exports = NodeHelper.create({
 				preview: '640,360,1280,720'
 			});
 		} else if (orientation == 'Vertical') {
-			myCamera = new PiCamera({
-				mode: 'photo',
-				output: `${IMAGE_PATH}/${filename}.jpg`,
-				width: 1080,
-				height: 1920,
-				nopreview: false,
-				vflip: true,
-				fullscreen: false,
-				preview: '900,0,720,1280' //987,0,720,1280
+			const command = 'rpicam-jpeg --output test2.jpg --timeout 5000 --width 1080 --height 1920 -p 900,0,600,1066';
+
+			exec(command, (error, stdout, stderr) => {
+			  if (error) {
+				console.error(`Error executing command: ${error.message}`);
+				return;
+			  }
+			
+			  if (stderr) {
+				console.error(`Command stderr: ${stderr}`);
+				return;
+			  }
+			
+			  console.log(`Command output: ${stdout}`);
 			});
 		}
 
