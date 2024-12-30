@@ -116,7 +116,7 @@
   font-size: 250px;
   color: black;
   position: absolute;  /* Use absolute positioning */
-  top: 50%;            /* Set vertical position to the middle of the screen */
+  top: 30%;            /* Set vertical position to the middle of the screen */
   left: 50%;           /* Set horizontal position to the middle of the screen */
   transform: translate(-50%, -50%); /* Offset the element by 50% of its own width and height */
 }
