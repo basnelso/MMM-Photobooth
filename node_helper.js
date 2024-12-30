@@ -114,23 +114,17 @@ module.exports = NodeHelper.create({
 
 		console.log('about to take a picture')
 		const process = exec(command);
-
-		process.stdout.on('data', (data) => {
-		  const output = data.toString();
-		  console.log(output); // Log the current chunk of output
-		
-		  // Check for the specific message
-		  if (output.includes('Still capture image received')) {
-			// Execute the code you want to run after the capture is received
-			console.log('Capture complete, performing further action...');
-			// Add your next steps here, for example:
-			// exec('next-command', (nextError, nextStdout, nextStderr) => { ... });
-		  }
-		});
 		
 		process.stderr.on('data', (data) => {
-		  console.error(`stderr: ${data.toString()}`);
-		});
+			const errorOutput = data.toString();
+			console.log(`stderr: ${errorOutput}`); // Log output from stderr
+		  
+			// Check for the specific message from stderr
+			if (errorOutput.includes('Still capture image received')) {
+			  console.log('Capture complete (from stderr), performing further action...');
+			  // Add your next steps here
+			}
+		  });
 		
 		process.on('close', (code) => {
 		  console.log(`Child process exited with code ${code}`);
