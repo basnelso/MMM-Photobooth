@@ -38,7 +38,10 @@ Module.register('MMM-Photobooth',
 	// Add in buttons to control lights and pick the color tempurature
 	// Add in uploading/uploaded message
 	getDom: function() {
-		if (this.pictureTimer >= 0) {
+		if (this.loadingPreview) {
+			const whiteBackground = document.createElement("div");
+			whiteBackground.className = 'white-background'
+		} else if (this.pictureTimer >= 0) {
 			const isHorizontalPhoto = this.orientation == 'Horizontal'
 			const whiteBackground = document.createElement("div");
 			whiteBackground.className = 'white-background'

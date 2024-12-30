@@ -67,7 +67,7 @@
   height: 110vh;
   width: 100vw;
   border: 1px solid #ffffff;
-  background: black;
+  background: white;
   display: flex;
   flex-direction: row;
   justify-content: space-around;
@@ -89,13 +89,13 @@
 .countdown-left-h {
   font-size: 300px;
   color: white;
-  margin-right: 200px;
+  margin-right: 700px;
 }
 
 .countdown-right-h {
   font-size: 300px;
   color: white;
-  margin-left: 200px;
+  margin-left: 700px;
 }
 
 
@@ -117,15 +117,18 @@
   position: fixed;
   display: flex;
   flex-direction: row;
-  top: 10vh;
+  top: 0vh;
+  margin-top: 0px;
+  padding-top: 0px;
 }
 
 .arrow {
   color: white;
   margin-top: 0px;
-  margin-right: 150px;
-  margin-left: 150px;
-  top: 10vh;
+  margin-right: 200px;
+  margin-left: 200px;
+  padding-top: 0px;
+  top: 0vh;
 }
 
 .hidden-arrow {
