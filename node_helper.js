@@ -107,9 +107,9 @@ module.exports = NodeHelper.create({
 		var self = this;
 		var command = "";
 		if (orientation == 'Horizontal') {
-			command = `rpicam-jpeg --output ${IMAGE_PATH}/${filename}.jpg --timeout 5000 --width 1920 --height 1080 -p 320,200,1280,720 --info-text "" --vflip`;
+			command = `rpicam-jpeg --output ${IMAGE_PATH}/${filename}.jpg --timeout 5000 --width 1920 --height 1080 -p 320,200,1280,720 --info-text "" --vflip --immediate`;
 		} else if (orientation == 'Vertical') {
-			command = `rpicam-jpeg --output ${IMAGE_PATH}/${filename}.jpg --timeout 5000 --width 1080 --height 1920 -p 650,0,600,1066 --info-text "" --vflip`;
+			command = `rpicam-jpeg --output ${IMAGE_PATH}/${filename}.jpg --timeout 5000 --width 1080 --height 1920 -p 650,0,600,1066 --info-text "" --vflip --immediate`;
 		}
 
 		console.log('about to take a picture')
@@ -120,8 +120,9 @@ module.exports = NodeHelper.create({
 			console.log(`stderr: ${errorOutput}`); // Log output from stderr
 		  
 			// Check for the specific message from stderr
-			if (errorOutput.includes('Still capture image received')) {
-			  console.log('Capture complete (from stderr), performing further action...');
+			if (errorOutput.includes('Made X/EGL preview window')) {
+			  console.log('Sending preview window open notification');
+			  self.sendSocketNotification('PREVIEW_WINDOW_OPENED');
 			}
 		  });
 		
