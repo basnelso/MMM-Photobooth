@@ -77,7 +77,7 @@ Module.register('MMM-Photobooth',
 			arrowc.innerHTML = `&#x2191;`
 			arrowr.innerHTML = `&#x2196;`
 			arrowl.className = "arrow";
-			arrowc.className = "arrow";
+			arrowc.className = "arrow-c";
 			arrowr.className = "arrow";
 
 			if (isHorizontalPhoto) {
@@ -268,6 +268,7 @@ Module.register('MMM-Photobooth',
 	takePicture: function (orientation) {
 		this.sendSocketNotification('TAKE_PICTURE', orientation);
 		this.loadingPreview = true;
+		this.updateDom();
 	},
 
 	socketNotificationReceived: function(notification, payload) {

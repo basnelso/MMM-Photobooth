@@ -145,6 +145,14 @@
   top: 0vh;
 }
 
+.arrow-c {
+  color: white;
+  position: absolute;  /* Use absolute positioning */
+  top: 100px;          /* Set the top to 100px from the top of the screen */
+  left: 50%;           /* Center horizontally */
+  transform: translateX(-50%); /* Adjust for exact centering by offsetting 50% of its own width */
+}
+
 .hidden-arrow {
   color: black;
   margin-top: 0px;
