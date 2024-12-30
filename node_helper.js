@@ -118,7 +118,7 @@ module.exports = NodeHelper.create({
 				preview: '640,360,1280,720'
 			});
 		} else if (orientation == 'Vertical') {
-			const command = 'rpicam-jpeg --output test2.jpg --timeout 5000 --width 1080 --height 1920 -p 900,0,600,1066';
+			const command = 'rpicam-jpeg --output test2.jpg --timeout 5000 --width 1080 --height 1920 -p 660,0,600,1066 --info-text ""';
 
 			exec(command, (error, stdout, stderr) => {
 			  if (error) {
