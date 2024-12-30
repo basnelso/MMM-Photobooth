@@ -113,38 +113,28 @@ module.exports = NodeHelper.create({
 		}
 
 		console.log('about to take a picture')
-		exec(command, (error, stdout, stderr) => {
-			if (error) {
-			  console.error(`Error executing command: ${error.message}`);
-			  return;
-			}
-		  
-			if (stderr) {
-			  console.error(`Command stderr: ${stderr}`);
-			  return;
-			}
-		  
-			if (stdout.includes('Still capture image received')) {
-				// Code to execute once the message is received
-				console.log('Capture complete, performing further action...');
-				// Add your next steps here, for example:
-				// exec('next-command', (nextError, nextStdout, nextStderr) => { ... });
-			  }
+		const process = exec(command);
 
-			console.log(`Command output: ${stdout}`);
-		  });
-
-		myCamera.snap()
-			.then((result) => {
-				console.log('got result:')
-				console.log(result);
-				self.sendSocketNotification('REVERSE_LIGHTS_BACK');
-				self.sendSocketNotification('UPLOAD_CLIP');
-			})
-			.catch((error) => {
-				console.log('error occured');
-				console.log(error);
-			});
+		process.stdout.on('data', (data) => {
+		  const output = data.toString();
+		  console.log(output); // Log the current chunk of output
+		
+		  // Check for the specific message
+		  if (output.includes('Still capture image received')) {
+			// Execute the code you want to run after the capture is received
+			console.log('Capture complete, performing further action...');
+			// Add your next steps here, for example:
+			// exec('next-command', (nextError, nextStdout, nextStderr) => { ... });
+		  }
+		});
+		
+		process.stderr.on('data', (data) => {
+		  console.error(`stderr: ${data.toString()}`);
+		});
+		
+		process.on('close', (code) => {
+		  console.log(`Child process exited with code ${code}`);
+		});
 	},
 
 	moveLights: function (payload) {
