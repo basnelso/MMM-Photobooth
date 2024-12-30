@@ -60,6 +60,20 @@
   border-radius: 15px;
 }
 
+.black-background {
+  position: relative;
+  left: 0px;
+  top: -250px;
+  height: 110vh;
+  width: 100vw;
+  border: 1px solid #ffffff;
+  background: black;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+
 .white-background {
   position: relative;
   left: 0px;

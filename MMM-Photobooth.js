@@ -29,6 +29,7 @@ Module.register('MMM-Photobooth',
 		this.cameraDeployed = false;
 		this.pictureTimer = -1
 		this.orientation = ''
+		this.loadingPreview = false;
 	},
 
 	getStyles: function() {
@@ -41,10 +42,11 @@ Module.register('MMM-Photobooth',
 		if (this.loadingPreview) {
 			const whiteBackground = document.createElement("div");
 			whiteBackground.className = 'white-background'
+			return whiteBackground;
 		} else if (this.pictureTimer >= 0) {
 			const isHorizontalPhoto = this.orientation == 'Horizontal'
 			const whiteBackground = document.createElement("div");
-			whiteBackground.className = 'white-background'
+			whiteBackground.className = 'black-background'
 
 			const countdownLeft = document.createElement("p");
 			const countdownRight = document.createElement("p")
@@ -265,18 +267,18 @@ Module.register('MMM-Photobooth',
 
 	takePicture: function (orientation) {
 		this.sendSocketNotification('TAKE_PICTURE', orientation);
+		this.loadingPreview = true;
 	},
 
 	socketNotificationReceived: function(notification, payload) {
 		if (notification == 'UPLOAD_CLIP') {
-			console.log('preview window open notification reveived');
 			this.pictureTimer = -1;
 			this.updateDom();
 			this.sendSocketNotification(notification, this.config.driveDestination);
 		} else if (notification == 'REVERSE_LIGHTS_BACK') {
 			this.lightsOff()
 		} else if (notification == 'PREVIEW_WINDOW_OPENED') {
-			console.log('preview window open notification reveived');
+			this.loadingPreview = false;
 			this.pictureTimer = 6;
 			this.updatePictureTimer();
 		}
