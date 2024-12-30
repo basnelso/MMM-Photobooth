@@ -177,12 +177,12 @@
 }
 
 .arrow-up {
-  font-size: 100px; /* Adjust size as needed */
+  font-size: 250px; /* Adjust size as needed */
   color: black;
   margin-bottom: 20px; /* Space between the arrow and text */
 }
 
 .loadingText {
-  font-size: 40px; /* Adjust size as needed */
+  font-size: 250px; /* Adjust size as needed */
   color: black;
 }

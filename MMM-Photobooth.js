@@ -56,6 +56,7 @@ Module.register('MMM-Photobooth',
 			textWrapper.appendChild(loadingArrow);
 			textWrapper.appendChild(loadingText);
 			
+			whiteBackground.appendChild(textWrapper);
 			return whiteBackground;
 		} else if (this.pictureTimer >= 0) {
 			const isHorizontalPhoto = this.orientation == 'Horizontal'
