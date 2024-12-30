@@ -122,7 +122,8 @@ module.exports = NodeHelper.create({
 			// Check for the specific message from stderr
 			if (errorOutput.includes('Still capture image received')) {
 			  console.log('Capture complete (from stderr), performing further action...');
-			  // Add your next steps here
+			  self.sendSocketNotification('REVERSE_LIGHTS_BACK');
+			  self.sendSocketNotification('UPLOAD_CLIP');
 			}
 		  });
 		
