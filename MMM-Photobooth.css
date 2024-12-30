@@ -165,10 +165,11 @@
   justify-content: center;
   align-items: center;
   text-align: center; /* Center the text horizontally */
+  gap: 5px; /* Adds space between the arrow and the text */
 }
 
 .arrow-up {
-  font-size: 400px; /* Adjust size as needed */
+  font-size: 350px; /* Adjust size as needed */
   color: black;
 }
 
