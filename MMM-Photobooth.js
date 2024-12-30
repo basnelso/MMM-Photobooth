@@ -44,8 +44,8 @@ Module.register('MMM-Photobooth',
 			whiteBackground.className = 'white-background'
 
 			const loadingArrow = document.createElement("p");
-			arrow.className = 'arrow-up';
-			arrow.innerHTML = `&#x2191;`;
+			loadingArrow.className = 'arrow-up';
+			loadingArrow.innerHTML = `&#x2191;`;
 
 			const loadingText = document.createElement("p");
 			loadingText.className = 'loadingText';
