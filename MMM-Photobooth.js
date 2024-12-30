@@ -268,7 +268,7 @@ Module.register('MMM-Photobooth',
 			this.sendSocketNotification(notification, this.config.driveDestination);
 		} else if (notification == 'REVERSE_LIGHTS_BACK') {
 			this.lightsOff()
-		} else if (notication == 'PREVIEW_WINDOW_OPENED') {
+		} else if (notification == 'PREVIEW_WINDOW_OPENED') {
 			console.log('preview window open notification reveived');
 			this.pictureTimer = 6;
 			this.updatePictureTimer();
