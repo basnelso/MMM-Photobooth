@@ -74,17 +74,30 @@
   align-items: center;
 }
 
-.countdown-left {
+.countdown-left-v {
   font-size: 300px;
   color: white;
-  margin-right: 400px;
+  margin-right: 425px;
 }
 
-.countdown-right {
+.countdown-right-v {
   font-size: 300px;
   color: white;
-  margin-left: 400px;
+  margin-left: 425px;
 }
+
+.countdown-left-h {
+  font-size: 300px;
+  color: white;
+  margin-right: 200px;
+}
+
+.countdown-right-h {
+  font-size: 300px;
+  color: white;
+  margin-left: 200px;
+}
+
 
 .light-temp-button {
   width: 60px;

@@ -39,13 +39,20 @@ Module.register('MMM-Photobooth',
 	// Add in uploading/uploaded message
 	getDom: function() {
 		if (this.pictureTimer >= 0) {
+			const isHorizontalPhoto = this.orientation == 'Horizontal'
 			const whiteBackground = document.createElement("div");
 			whiteBackground.className = 'white-background'
 
 			const countdownLeft = document.createElement("p");
-			countdownLeft.className = "countdown-left";
 			const countdownRight = document.createElement("p")
-			countdownRight.className = "countdown-right";
+			if (isHorizontalPhoto) {
+				countdownLeft.className = "countdown-left-h";
+				countdownRight.className = "countdown-right-h"
+			} else {
+				countdownLeft.className = "countdown-left-v";
+				countdownRight.className = "countdown-right-v"
+			}
+
 
 			if (this.pictureTimer > 0) {
 				countdownLeft.appendChild(document.createTextNode(this.pictureTimer))
@@ -68,17 +75,14 @@ Module.register('MMM-Photobooth',
 			arrowc.className = "arrow";
 			arrowr.className = "arrow";
 
-			if (this.orientation == 'Horizontal') {
+			if (isHorizontalPhoto) {
 				console.log("horizontal photo")
 				arrowl.className = 'hidden-arrow';
 				arrowr.className = 'hidden-arrow';
-			} else if (this.orientation == 'Vertical') {
+			} else {
 				console.log('vertical photo')
 				arrowc.className = 'hidden-arrow';
-			} else {
-				console.log("unidentified orientation")
 			}
-
 
 			arrows.appendChild(arrowl);
 			arrows.appendChild(arrowc);
