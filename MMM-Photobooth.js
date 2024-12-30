@@ -42,6 +42,9 @@ Module.register('MMM-Photobooth',
 		if (this.loadingPreview) {
 			const whiteBackground = document.createElement("div");
 			whiteBackground.className = 'white-background'
+			const loadingText = document.createElement("p");
+			loadingText.className = 'loadingText';
+			loadingText.innerHTML = 'Look at the Camera'
 			return whiteBackground;
 		} else if (this.pictureTimer >= 0) {
 			const isHorizontalPhoto = this.orientation == 'Horizontal'
