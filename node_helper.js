@@ -122,13 +122,13 @@ module.exports = NodeHelper.create({
 			// Check for the specific message from stderr
 			if (errorOutput.includes('Still capture image received')) {
 			  console.log('Capture complete (from stderr), performing further action...');
-			  self.sendSocketNotification('REVERSE_LIGHTS_BACK');
-			  self.sendSocketNotification('UPLOAD_CLIP');
 			}
 		  });
 		
 		process.on('close', (code) => {
 		  console.log(`Child process exited with code ${code}`);
+		  self.sendSocketNotification('REVERSE_LIGHTS_BACK');
+		  self.sendSocketNotification('UPLOAD_CLIP');
 		});
 	},
 
