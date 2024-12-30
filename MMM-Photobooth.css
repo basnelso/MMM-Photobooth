@@ -174,15 +174,16 @@
   justify-content: center;
   align-items: center;
   text-align: center; /* Center the text horizontally */
+  gap: 20px; /* Adds space between the arrow and the text */
 }
 
 .arrow-up {
-  font-size: 250px; /* Adjust size as needed */
+  font-size: 200px; /* Adjust size as needed */
   color: black;
   margin-bottom: 20px; /* Space between the arrow and text */
 }
 
 .loadingText {
-  font-size: 250px; /* Adjust size as needed */
+  font-size: 200px; /* Adjust size as needed */
   color: black;
 }
