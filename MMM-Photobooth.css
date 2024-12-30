@@ -83,8 +83,7 @@
   border: 1px solid #ffffff;
   background: white;
   display: flex;
-  flex-direction: row;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
 }
 
@@ -167,4 +166,23 @@
   margin-right: 150px;
   margin-left: 150px;
   top: 10vh;
+}
+
+.text-wrapper {
+  display: flex;
+  flex-direction: column; /* Stack the arrow and text vertically */
+  justify-content: center;
+  align-items: center;
+  text-align: center; /* Center the text horizontally */
+}
+
+.arrow-up {
+  font-size: 100px; /* Adjust size as needed */
+  color: black;
+  margin-bottom: 20px; /* Space between the arrow and text */
+}
+
+.loadingText {
+  font-size: 40px; /* Adjust size as needed */
+  color: black;
 }

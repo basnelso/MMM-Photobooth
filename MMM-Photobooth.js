@@ -42,10 +42,20 @@ Module.register('MMM-Photobooth',
 		if (this.loadingPreview) {
 			const whiteBackground = document.createElement("div");
 			whiteBackground.className = 'white-background'
+
+			const loadingArrow = document.createElement("p");
+			arrow.className = 'arrow-up';
+			arrow.innerHTML = `&#x2191;`;
+
 			const loadingText = document.createElement("p");
 			loadingText.className = 'loadingText';
 			loadingText.innerHTML = 'Look at the Camera';
-			whiteBackground.appendChild(loadingText);
+
+			const textWrapper = document.createElement("div");
+			textWrapper.className = 'text-wrapper';
+			textWrapper.appendChild(loadingArrow);
+			textWrapper.appendChild(loadingText);
+			
 			return whiteBackground;
 		} else if (this.pictureTimer >= 0) {
 			const isHorizontalPhoto = this.orientation == 'Horizontal'
