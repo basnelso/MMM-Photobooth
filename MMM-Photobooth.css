@@ -60,7 +60,7 @@
   border-radius: 15px;
 }
 
-.white-background {
+.black-background {
   position: relative;
   left: 0px;
   top: -250px;
@@ -74,16 +74,41 @@
   align-items: center;
 }
 
-.countdown-left {
-  font-size: 300px;
-  color: white;
-  margin-right: 400px;
+.white-background {
+  position: relative;
+  left: 0px;
+  top: -250px;
+  height: 110vh;
+  width: 100vw;
+  border: 1px solid #ffffff;
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.countdown-right {
+.countdown-left-v {
   font-size: 300px;
   color: white;
-  margin-left: 400px;
+  margin-right: 425px;
+}
+
+.countdown-right-v {
+  font-size: 300px;
+  color: white;
+  margin-left: 425px;
+}
+
+.countdown-left-h {
+  font-size: 300px;
+  color: white;
+  margin-right: 700px;
+}
+
+.countdown-right-h {
+  font-size: 300px;
+  color: white;
+  margin-left: 700px;
 }
 
 .light-temp-button {
@@ -104,15 +129,26 @@
   position: fixed;
   display: flex;
   flex-direction: row;
-  top: 10vh;
+  top: 0vh;
+  margin-top: 0px;
+  padding-top: 0px;
 }
 
 .arrow {
   color: white;
   margin-top: 0px;
-  margin-right: 150px;
-  margin-left: 150px;
-  top: 10vh;
+  margin-right: 200px;
+  margin-left: 200px;
+  padding-top: 0px;
+  top: 0vh;
+}
+
+.arrow-c {
+  color: white;
+  position: absolute;  /* Use absolute positioning */
+  top: 0;          /* Set the top to 100px from the top of the screen */
+  left: 50%;           /* Center horizontally */
+  transform: translateX(-50%); /* Adjust for exact centering by offsetting 50% of its own width */
 }
 
 .hidden-arrow {
@@ -121,4 +157,24 @@
   margin-right: 150px;
   margin-left: 150px;
   top: 10vh;
+}
+
+.text-wrapper {
+  display: flex;
+  flex-direction: column; /* Stack the arrow and text vertically */
+  justify-content: center;
+  align-items: center;
+  text-align: center; /* Center the text horizontally */
+  gap: 20px; /* Adds space between the arrow and the text */
+}
+
+.arrow-up {
+  font-size: 300px; /* Adjust size as needed */
+  color: black;
+  margin-bottom: 10px; /* Space between the arrow and text */
+}
+
+.loadingText {
+  font-size: 200px; /* Adjust size as needed */
+  color: black;
 }

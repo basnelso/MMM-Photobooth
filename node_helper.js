@@ -6,6 +6,7 @@ const { spawn } = require("child_process");
 const PiCamera = require('pi-camera');
 const fetch = require('node-fetch');
 const url = require('url');
+const { exec } = require('child_process');
 
 const VIDEO_PATH = './modules/MMM-Photobooth/videos/clips/';
 const IMAGE_PATH = './modules/MMM-Photobooth/pictures/clips/';
@@ -103,44 +104,33 @@ module.exports = NodeHelper.create({
 	takePicture: function (orientation) {
 		console.log("in takepicture function in node helper")
 		const filename = 'pic_' + moment().format('YYYY[_]MM[_]DD[_]h:mm:ss');
-		var myCamera = null;
 		var self = this;
+		var command = "";
 		if (orientation == 'Horizontal') {
-			myCamera = new PiCamera({
-				mode: 'photo',
-				output: `${IMAGE_PATH}/${filename}.jpg`,
-				width: 1920,
-				height: 1080,
-				nopreview: false,
-				vflip: true,
-				fullscreen: false,
-				preview: '640,360,1280,720'
-			});
+			command = `rpicam-jpeg --output ${IMAGE_PATH}/${filename}.jpg --timeout 5000 --width 1920 --height 1080 -p 320,200,1280,720 --info-text "" --vflip --immediate`;
 		} else if (orientation == 'Vertical') {
-			myCamera = new PiCamera({
-				mode: 'photo',
-				output: `${IMAGE_PATH}/${filename}.jpg`,
-				width: 1080,
-				height: 1920,
-				nopreview: false,
-				vflip: true,
-				fullscreen: false,
-				preview: '900,0,720,1280' //987,0,720,1280
-			});
+			command = `rpicam-jpeg --output ${IMAGE_PATH}/${filename}.jpg --timeout 5000 --width 1080 --height 1920 -p 650,0,600,1066 --info-text "" --vflip --immediate`;
 		}
 
 		console.log('about to take a picture')
-		myCamera.snap()
-			.then((result) => {
-				console.log('got result:')
-				console.log(result);
-				self.sendSocketNotification('REVERSE_LIGHTS_BACK');
-				self.sendSocketNotification('UPLOAD_CLIP');
-			})
-			.catch((error) => {
-				console.log('error occured');
-				console.log(error);
-			});
+		const process = exec(command);
+		
+		process.stderr.on('data', (data) => {
+			const errorOutput = data.toString();
+			console.log(`stderr: ${errorOutput}`); // Log output from stderr
+		  
+			// Check for the specific message from stderr
+			if (errorOutput.includes('Made X/EGL preview window')) {
+			  console.log('Sending preview window open notification');
+			  self.sendSocketNotification('PREVIEW_WINDOW_OPENED');
+			}
+		  });
+		
+		process.on('close', (code) => {
+		  console.log(`Child process exited with code ${code}`);
+		  self.sendSocketNotification('REVERSE_LIGHTS_BACK');
+		  self.sendSocketNotification('UPLOAD_CLIP');
+		});
 	},
 
 	moveLights: function (payload) {

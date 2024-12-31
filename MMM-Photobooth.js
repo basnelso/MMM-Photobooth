@@ -29,6 +29,7 @@ Module.register('MMM-Photobooth',
 		this.cameraDeployed = false;
 		this.pictureTimer = -1
 		this.orientation = ''
+		this.loadingPreview = false;
 	},
 
 	getStyles: function() {
@@ -38,14 +39,40 @@ Module.register('MMM-Photobooth',
 	// Add in buttons to control lights and pick the color tempurature
 	// Add in uploading/uploaded message
 	getDom: function() {
-		if (this.pictureTimer >= 0) {
+		if (this.loadingPreview) {
 			const whiteBackground = document.createElement("div");
 			whiteBackground.className = 'white-background'
 
+			const loadingArrow = document.createElement("p");
+			loadingArrow.className = 'arrow-up';
+			loadingArrow.innerHTML = `&#x2191;`;
+
+			const loadingText = document.createElement("p");
+			loadingText.className = 'loadingText';
+			loadingText.innerHTML = 'Look at the Camera';
+
+			const textWrapper = document.createElement("div");
+			textWrapper.className = 'text-wrapper';
+			textWrapper.appendChild(loadingArrow);
+			textWrapper.appendChild(loadingText);
+			
+			whiteBackground.appendChild(textWrapper);
+			return whiteBackground;
+		} else if (this.pictureTimer >= 0) {
+			const isHorizontalPhoto = this.orientation == 'Horizontal'
+			const whiteBackground = document.createElement("div");
+			whiteBackground.className = 'black-background'
+
 			const countdownLeft = document.createElement("p");
-			countdownLeft.className = "countdown-left";
 			const countdownRight = document.createElement("p")
-			countdownRight.className = "countdown-right";
+			if (isHorizontalPhoto) {
+				countdownLeft.className = "countdown-left-h";
+				countdownRight.className = "countdown-right-h"
+			} else {
+				countdownLeft.className = "countdown-left-v";
+				countdownRight.className = "countdown-right-v"
+			}
+
 
 			if (this.pictureTimer > 0) {
 				countdownLeft.appendChild(document.createTextNode(this.pictureTimer))
@@ -65,20 +92,17 @@ Module.register('MMM-Photobooth',
 			arrowc.innerHTML = `&#x2191;`
 			arrowr.innerHTML = `&#x2196;`
 			arrowl.className = "arrow";
-			arrowc.className = "arrow";
+			arrowc.className = "arrow-c";
 			arrowr.className = "arrow";
 
-			if (this.orientation == 'Horizontal') {
+			if (isHorizontalPhoto) {
 				console.log("horizontal photo")
 				arrowl.className = 'hidden-arrow';
 				arrowr.className = 'hidden-arrow';
-			} else if (this.orientation == 'Vertical') {
+			} else {
 				console.log('vertical photo')
 				arrowc.className = 'hidden-arrow';
-			} else {
-				console.log("unidentified orientation")
 			}
-
 
 			arrows.appendChild(arrowl);
 			arrows.appendChild(arrowc);
@@ -258,8 +282,8 @@ Module.register('MMM-Photobooth',
 
 	takePicture: function (orientation) {
 		this.sendSocketNotification('TAKE_PICTURE', orientation);
-		this.pictureTimer = 6
-		this.updatePictureTimer();
+		this.loadingPreview = true;
+		this.updateDom();
 	},
 
 	socketNotificationReceived: function(notification, payload) {
@@ -269,6 +293,10 @@ Module.register('MMM-Photobooth',
 			this.sendSocketNotification(notification, this.config.driveDestination);
 		} else if (notification == 'REVERSE_LIGHTS_BACK') {
 			this.lightsOff()
+		} else if (notification == 'PREVIEW_WINDOW_OPENED') {
+			this.loadingPreview = false;
+			this.pictureTimer = 6;
+			this.updatePictureTimer();
 		}
     },
 
