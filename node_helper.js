@@ -6,7 +6,7 @@ const { spawn } = require("child_process");
 const PiCamera = require('pi-camera');
 const fetch = require('node-fetch');
 const url = require('url');
-const { exec } = require('child_process');
+const { exec, execFile } = require('child_process');
 
 const VIDEO_PATH = './modules/MMM-Photobooth/videos/clips/';
 const IMAGE_PATH = './modules/MMM-Photobooth/pictures/clips/';
@@ -75,6 +75,7 @@ module.exports = NodeHelper.create({
 	recordClip: function (payload) {
 		const filename = 'clip_' + moment().format('YYYY[_]MM[_]DD[_]h:mm:ss');
 		const recordingWindow = spawn('bash', ['~/start_picam.sh', payload.length, filename, payload.orientation], { shell: true });
+		var self = this;
 
 		recordingWindow.stdout.on('data', function (data) {
 			if (data) {
@@ -83,19 +84,23 @@ module.exports = NodeHelper.create({
 		});
 		recordingWindow.stderr.on('data', function (data) {
 			if (data) {
-				console.log('stderr: ' + data.toString());
+				const errorOutput = data.toString();
+				console.log('stderr: ' + errorOutput);
+				// rpicam-vid starts recording as soon as its preview window appears, so start the on-screen countdown then.
+				if (errorOutput.includes('Made X/EGL preview window')) {
+					self.sendSocketNotification('RECORDING_STARTED', payload.length);
+				}
 			}
 		});
 		recordingWindow.on('exit', function (code) {
 			if (code) {
 				console.log('child process exited with code ' + code.toString());
 			}
+			// Upload once the script has finished: flipping and encoding the clip takes a variable few seconds,
+			// so a fixed timer could fire before the file exists.
+			self.sendSocketNotification('UPLOAD_CLIP');
 		});
 
-		var self = this;
-		setTimeout(function () {
-			self.sendSocketNotification('UPLOAD_CLIP')
-		}, (10 + payload.length) * 1000);
 		setTimeout(function () {
 			self.sendSocketNotification('REVERSE_LIGHTS_BACK')
 		}, (1 + payload.length) * 1000);
@@ -129,7 +134,17 @@ module.exports = NodeHelper.create({
 		process.on('close', (code) => {
 		  console.log(`Child process exited with code ${code}`);
 		  self.sendSocketNotification('REVERSE_LIGHTS_BACK');
-		  self.sendSocketNotification('UPLOAD_CLIP');
+		  // --vflip mirrors the capture so the preview behaves like a mirror; flip the saved photo back the right way round.
+		  const imageFile = `${IMAGE_PATH}/${filename}.jpg`;
+		  const unmirroredFile = `${IMAGE_PATH}/${filename}.unmirrored.jpg`;
+		  execFile('ffmpeg', ['-v', 'error', '-y', '-i', imageFile, '-vf', 'hflip', '-q:v', '1', unmirroredFile], (error) => {
+		    if (error) {
+		      console.log('Could not un-mirror photo, uploading it as captured:', error.message);
+		    } else {
+		      fs.renameSync(unmirroredFile, imageFile);
+		    }
+		    self.sendSocketNotification('UPLOAD_CLIP');
+		  });
 		});
 	},
 

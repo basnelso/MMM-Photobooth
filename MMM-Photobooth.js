@@ -30,6 +30,7 @@ Module.register('MMM-Photobooth',
 		this.pictureTimer = -1
 		this.orientation = ''
 		this.loadingPreview = false;
+		this.recordingClip = false;
 	},
 
 	getStyles: function() {
@@ -278,6 +279,8 @@ Module.register('MMM-Photobooth',
 			orientation: orientation
 		}
 		this.sendSocketNotification('RECORD_CLIP', payload);
+		this.loadingPreview = true;
+		this.updateDom();
 	},
 
 	takePicture: function (orientation) {
@@ -296,6 +299,11 @@ Module.register('MMM-Photobooth',
 		} else if (notification == 'PREVIEW_WINDOW_OPENED') {
 			this.loadingPreview = false;
 			this.pictureTimer = 6;
+			this.updatePictureTimer();
+		} else if (notification == 'RECORDING_STARTED') {
+			this.loadingPreview = false;
+			this.pictureTimer = payload + 1; // updatePictureTimer decrements before the first render
+			this.recordingClip = true;
 			this.updatePictureTimer();
 		}
     },
@@ -317,6 +325,14 @@ Module.register('MMM-Photobooth',
 			console.log("pic timer is greater than 0", this.pictureTimer)
 			setTimeout(function () {
 				self.updatePictureTimer();
+			}, 1000);
+		} else if (this.recordingClip) {
+			// Unlike a photo, the clip has nothing left to capture once the countdown ends, so clear the overlay
+			// instead of leaving it up until the upload starts.
+			this.recordingClip = false;
+			setTimeout(function () {
+				self.pictureTimer = -1;
+				self.updateDom();
 			}, 1000);
 		}
 	}
