@@ -14,18 +14,18 @@ Module.register('MMM-Photobooth',
 		useLights: true,
 		linkText: '',
 		deviceId: '',
+		// Hue colour temperature in mireds: lower is cooler. 153-454 is the range Hue white-ambiance bulbs support.
+		defaultColorTemp: 153,
+		minColorTemp: 153,
+		maxColorTemp: 454,
+		previewRestoreDelay: 2000,
     },
 
 	start: function()
 	{
 		Log.info('Starting module: ' + this.name);
 		this.cameraState = {};
-		this.currentTemp = 'cool';
-		this.lightTempIcons = {
-			'cool': 'https://raw.githubusercontent.com/basnelso/MMM-Photobooth/master/images/cool.png',
-			'medium': 'https://raw.githubusercontent.com/basnelso/MMM-Photobooth/master/images/medium.png',
-			'warm': 'https://raw.githubusercontent.com/basnelso/MMM-Photobooth/master/images/warm.png',
-		}
+		this.currentTemp = this.config.defaultColorTemp;
 		this.cameraDeployed = false;
 		this.pictureTimer = -1
 		this.orientation = ''
@@ -117,72 +117,59 @@ Module.register('MMM-Photobooth',
 		}
 
 		const wrapper = document.createElement("div");
+		wrapper.className = 'booth-panel';
 
-		const capture_wrapper = document.createElement("span");
-		const video_wrapper = document.createElement("span");
-		const picture_wrapper = document.createElement("span");
-		const lights_on_wrapper = document.createElement("div");
-		const lights_off_wrapper = document.createElement("div");
-		const lightTempWrapper = document.createElement("span");
-
-		const verticalVideoButton = this.createCaptureButton('Video', 'Vertical');
-		const horizontalVideoButton = this.createCaptureButton('Video', 'Horizontal');
-		const verticalPicButton = this.createCaptureButton('Pic', 'Vertical');
-		const horizontalPicButton = this.createCaptureButton('Pic', 'Horizontal');
-
-		const lightOnButton = this.createLightControlButton('On');
-		const lightOffButton = this.createLightControlButton('Off');
-
-		const lightCoolButton = this.createLightTempButton('cool');
-		const lightMediumButton = this.createLightTempButton('medium');
-		const lightWarmButton = this.createLightTempButton('warm');
-
-		lights_on_wrapper.appendChild(lightOnButton);
-		lights_off_wrapper.appendChild(lightOffButton);
-
-		lightTempWrapper.appendChild(lightCoolButton);
-		lightTempWrapper.appendChild(lightMediumButton);
-		lightTempWrapper.appendChild(lightWarmButton);
-
-		video_wrapper.appendChild(verticalVideoButton);
-		video_wrapper.appendChild(horizontalVideoButton);
-
-		picture_wrapper.appendChild(verticalPicButton);
-		picture_wrapper.appendChild(horizontalPicButton);
-
-		var link_text = document.createElement("span");
-		link_text.innerHTML = this.config.linkText;
-		capture_wrapper.appendChild(link_text);
-
-		capture_wrapper.appendChild(video_wrapper);
-		capture_wrapper.appendChild(picture_wrapper);
-
-		if (this.config.useLights) {
-			capture_wrapper.appendChild(lightTempWrapper);
+		if (this.config.linkText) {
+			const linkText = document.createElement("div");
+			linkText.className = 'booth-link-text';
+			linkText.innerHTML = this.config.linkText;
+			wrapper.appendChild(linkText);
 		}
 
+		// Photo and video sit either side of the lights toggle so the panel is symmetrical under the clock.
+		const captureRow = document.createElement("div");
+		captureRow.className = 'booth-row';
+		captureRow.appendChild(this.createCaptureGroup('Pic', 'Photo'));
 		if (this.config.useLights) {
-			wrapper.appendChild(lights_on_wrapper);
+			captureRow.appendChild(this.createGroup('Lights', [this.createLightToggleButton()]));
 		}
-		wrapper.appendChild(capture_wrapper);
-		if (this.config.useLights) {
-			wrapper.appendChild(lights_off_wrapper);
-		}
+		captureRow.appendChild(this.createCaptureGroup('Video', 'Video'));
+		wrapper.appendChild(captureRow);
 
-		lightTempWrapper.className = 'light-temp-wrapper'
-		lights_on_wrapper.className = 'lights-control-wrapper'
-		lights_off_wrapper.className = 'lights-control-wrapper'
-		capture_wrapper.className = 'capture-wrapper';
-		video_wrapper.className = 'button_wrapper';
-		picture_wrapper.className = 'button_wrapper';
-		wrapper.className = 'master-wrapper';
+		const lightTempWrapper = document.createElement("div");
+		lightTempWrapper.className = 'light-temp-wrapper';
+		lightTempWrapper.appendChild(this.createLightTempSlider());
+		wrapper.appendChild(lightTempWrapper);
 
 		return wrapper;
 	},
 
+	createCaptureGroup: function(type, title) {
+		return this.createGroup(title, [
+			this.createCaptureButton(type, 'Vertical'),
+			this.createCaptureButton(type, 'Horizontal'),
+		]);
+	},
+
+	createGroup: function(title, buttonElements) {
+		const group = document.createElement("div");
+		group.className = 'booth-group';
+
+		const heading = document.createElement("div");
+		heading.className = 'booth-group-title';
+		heading.innerHTML = title;
+		group.appendChild(heading);
+
+		const buttons = document.createElement("div");
+		buttons.className = 'booth-group-buttons';
+		buttonElements.forEach(button => buttons.appendChild(button));
+		group.appendChild(buttons);
+		return group;
+	},
+
 	createCaptureButton: function(type, orientation) {
-		button = document.createElement("span");
-		button.className = 'capture-button';
+		const button = document.createElement("div");
+		button.className = 'booth-button';
 		var self = this;
 		button.addEventListener('click', function () {
 			self.orientation = orientation
@@ -194,59 +181,117 @@ Module.register('MMM-Photobooth',
 			}
 		})
 
-		button.innerHTML = `${orientation} ${type}`;
+		// A small outline in the shape of the frame makes the orientation readable at a glance.
+		const frameShape = document.createElement("span");
+		frameShape.className = 'booth-frame-shape booth-frame-' + orientation.toLowerCase();
+		button.appendChild(frameShape);
+		button.appendChild(document.createTextNode(orientation));
 		return button;
 	},
 
-	createLightControlButton: function(mode) {
-		button = document.createElement("span");
-		button.className = 'capture-button light-button';
+	createLightToggleButton: function() {
+		const button = document.createElement("div");
+		button.className = this.cameraDeployed ? 'booth-button booth-lights-button booth-lights-on' : 'booth-button booth-lights-button';
+		const bulbIcon = document.createElement("i");
+		bulbIcon.className = this.cameraDeployed ? 'fa-solid fa-lightbulb' : 'fa-regular fa-lightbulb';
+		button.appendChild(bulbIcon);
 		var self = this;
 		button.addEventListener('click', function () {
-			if (mode == 'On' && !self.cameraDeployed) {
-				self.lightsOn();
-			} else if (mode == 'Off') {
-				self.lightsOff();
-			}
-		})
-
-		button.innerHTML = `Lights ${mode}`;
-		return button;
-	},
-
-	createLightTempButton: function(temp) {
-		button = document.createElement("span");
-		
-		if (this.currentTemp == temp) {
-			button.className = 'light-temp-button temp-selected';
-		} else {
-			button.className = 'light-temp-button';
-		}
-		
-		var self = this;
-		button.addEventListener('click', function () {
-			self.currentTemp = temp;
-			self.updateDom();
 			if (self.cameraDeployed) {
-				console.log("camera is deployed so going to change the color temp to", temp)
-				self.sendNotification('CHANGE_TEMP', temp)
+				self.lightsOff();
+			} else {
+				self.lightsOn();
 			}
+			self.updateDom();
 		})
-
-		lightTempImage = document.createElement("img");
-		lightTempImage.src = this.lightTempIcons[temp];
-		lightTempImage.className = "light-temp-image";
-
-		button.appendChild(lightTempImage)
 		return button;
+	},
+
+	createLightTempSlider: function() {
+		const coolLabel = document.createElement("span");
+		coolLabel.className = 'light-temp-label';
+		coolLabel.innerHTML = 'Cool';
+
+		const warmLabel = document.createElement("span");
+		warmLabel.className = 'light-temp-label';
+		warmLabel.innerHTML = 'Warm';
+
+		const slider = document.createElement("input");
+		slider.type = 'range';
+		slider.className = 'light-temp-slider';
+		slider.min = this.config.minColorTemp;
+		slider.max = this.config.maxColorTemp;
+		slider.value = this.currentTemp;
+
+		var self = this;
+		// Dragging fires many input events; the Hue bridge handles roughly 10 requests a second,
+		// so send live updates at most every 250ms and always send the final value on release.
+		var lastSent = 0;
+		const setFromInput = function (isFinal) {
+			self.currentTemp = Number(slider.value);
+			const now = Date.now();
+			if (isFinal || now - lastSent > 250) {
+				lastSent = now;
+				self.sendTempChange(isFinal);
+			}
+		};
+		slider.addEventListener('input', function () { setFromInput(false); });
+		slider.addEventListener('change', function () { setFromInput(true); });
+
+		// On the mirror's touchscreen, Electron treats a touch drag as a scroll gesture, so the native
+		// range input only responds to taps. Track the finger ourselves and move the slider to it.
+		const setFromTouch = function (touch, isFinal) {
+			const rect = slider.getBoundingClientRect();
+			const fraction = Math.min(1, Math.max(0, (touch.clientX - rect.left) / rect.width));
+			slider.value = Math.round(self.config.minColorTemp + fraction * (self.config.maxColorTemp - self.config.minColorTemp));
+			setFromInput(isFinal);
+		};
+		slider.addEventListener('touchstart', function (event) {
+			event.preventDefault();
+			setFromTouch(event.touches[0], false);
+		}, { passive: false });
+		slider.addEventListener('touchmove', function (event) {
+			event.preventDefault();
+			setFromTouch(event.touches[0], false);
+		}, { passive: false });
+		slider.addEventListener('touchend', function (event) {
+			event.preventDefault();
+			setFromTouch(event.changedTouches[0], true);
+		}, { passive: false });
+
+		const sliderWrapper = document.createElement("div");
+		sliderWrapper.className = 'light-temp-slider-wrapper';
+		sliderWrapper.appendChild(coolLabel);
+		sliderWrapper.appendChild(slider);
+		sliderWrapper.appendChild(warmLabel);
+		return sliderWrapper;
+	},
+
+	sendTempChange: function(isFinal) {
+		if (this.cameraDeployed) {
+			this.sendNotification('CHANGE_TEMP', this.currentTemp);
+			return;
+		}
+
+		// With the booth packed away, touching the slider previews the colour on the camera lights
+		// (without moving them) and puts the old colour back a couple of seconds after release.
+		clearTimeout(this.previewTimer);
+		this.sendNotification('PREVIEW_TEMP', this.currentTemp);
+		if (isFinal) {
+			var self = this;
+			this.previewTimer = setTimeout(function () {
+				self.sendNotification('END_PREVIEW');
+			}, this.config.previewRestoreDelay);
+		}
 	},
 
 	lightsOn: function() {
+		clearTimeout(this.previewTimer);
 		if (!this.cameraDeployed) {
 			this.cameraDeployed = true;
 			this.sendNotification('LIGHTS_ON', this.currentTemp); // Send to hue module
 		
-			payload = {
+			const payload = {
 				'command': 'useBooth',
 				'bearer': this.config.bearer,
 				'deviceId': this.config.deviceId
@@ -261,7 +306,7 @@ Module.register('MMM-Photobooth',
 			console.log("switching lights back, the saved state is:", this.cameraState)
 			this.sendNotification('REVERSE_LIGHTS_BACK', this.cameraState)
 
-			payload = {
+			const payload = {
 				'command': 'lightWall',
 				'bearer': this.config.bearer,
 				'deviceId': this.config.deviceId
@@ -274,7 +319,7 @@ Module.register('MMM-Photobooth',
 	},
 
 	recordClip: function (orientation) {
-		payload = {
+		const payload = {
 			length: this.config.videoRecodringLength,
 			orientation: orientation
 		}
@@ -291,6 +336,10 @@ Module.register('MMM-Photobooth',
 
 	socketNotificationReceived: function(notification, payload) {
 		if (notification == 'UPLOAD_CLIP') {
+			// The capture process has exited. Clear every overlay here as well: if the camera failed to start,
+			// no preview notification arrives and the white "Look at the Camera" screen would otherwise stay up.
+			this.loadingPreview = false;
+			this.recordingClip = false;
 			this.pictureTimer = -1;
 			this.updateDom();
 			this.sendSocketNotification(notification, this.config.driveDestination);
@@ -319,7 +368,7 @@ Module.register('MMM-Photobooth',
 		this.pictureTimer -= 1;
 		this.updateDom();
 
-		self = this;
+		var self = this;
 
 		if (this.pictureTimer > 0) {
 			console.log("pic timer is greater than 0", this.pictureTimer)

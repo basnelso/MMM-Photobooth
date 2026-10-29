@@ -1,64 +1,144 @@
-.capture-button {
-  z-index: 1;
-  /* Border */
-  border-style: solid;
-  border-width: 2px;
-  border-radius: 15px;
+.booth-panel {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  margin-top: 18px;
+}
 
-  /* as container */
+.booth-link-text {
+  font-size: 18px;
+  color: #999;
+}
+
+.booth-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 44px;
+}
+
+.booth-group {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.booth-group-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #aaa;
+}
+
+.booth-group-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.booth-button {
+  display: flex;
+  align-items: center;
   justify-content: center;
-  align-items: center;
-
-  margin: 2px;
-  padding: 6px 6px;
-
-  width: 250px;
-  height: 30px;
+  gap: 10px;
+  width: 150px;
+  height: 46px;
+  box-sizing: border-box;
+  font-size: 20px;
+  font-weight: 500;
+  color: #eee;
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  border-radius: 23px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
 }
 
-.capture-wrapper {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
+.booth-button:active {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #fff;
+}
+
+.booth-frame-shape {
+  display: inline-block;
+  border: 2px solid currentColor;
+  border-radius: 3px;
+}
+
+.booth-frame-vertical {
+  width: 11px;
+  height: 18px;
+}
+
+.booth-frame-horizontal {
+  width: 20px;
+  height: 12px;
+}
+
+.booth-lights-button {
+  width: 46px;
   font-size: 20px;
 }
 
-.button_wrapper {
-  width: 500px;
-  display: inline-flex;
-  flex-direction: row;
-}
-
-.master-wrapper {
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-.lights-control-wrapper {
-  font-size: 20px;
-  padding-bottom: 33px;
-  display: flex;
-  align-items: center;
-}
-
-.light-button {
-  width: 100px;
+/* Warm glow while the booth lights are on, so it is obvious they still need switching off. */
+.booth-lights-on {
+  color: #ffc46b;
+  border-color: rgba(255, 180, 80, 0.7);
+  box-shadow: 0 0 14px rgba(255, 170, 60, 0.25);
 }
 
 .light-temp-wrapper {
   display: flex;
-  justify-content: space-around;
-  width: 400px;
+  width: 560px;
 }
 
-.temp-selected {
-  border-style: solid;
-  border-width: 2px;
-  border-radius: 15px;
+.light-temp-slider-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
 }
+
+.light-temp-label {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #aaa;
+}
+
+/* MMM-SonosSelect styles every input[type=range] on the page, so these selectors need to be more specific than that. */
+.light-temp-wrapper input.light-temp-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  height: 34px;
+  background: transparent;
+  outline: none;
+  touch-action: none;
+}
+
+.light-temp-wrapper input.light-temp-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  /* Roughly the colour of a Hue white at each end: 6500K on the left, 2200K on the right. */
+  background: linear-gradient(to right, #9fc6ff, #fff3e0, #ff9f1c);
+}
+
+.light-temp-wrapper input.light-temp-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  /* Large thumb so it is easy to grab on the touchscreen. */
+  box-sizing: border-box;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #000;
+  border: 2px solid #fff;
+  margin-top: -12px;
+  cursor: pointer;
+}
+
 
 .black-background {
   position: relative;
@@ -111,18 +191,6 @@
   margin-left: 700px;
 }
 
-.light-temp-button {
-  width: 60px;
-  height: 60px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.light-temp-image {
-  width: 50px;
-  height: 50px;
-}
 
 .arrows {
   font-size: 300px;
