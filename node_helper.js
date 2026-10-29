@@ -110,10 +110,13 @@ module.exports = NodeHelper.create({
 		const filename = 'pic_' + moment().format('YYYY[_]MM[_]DD[_]HH:mm:ss');
 		var self = this;
 		var command = "";
+		// The room behind the booth is dark and fills most of the frame, so average metering overexposed the
+		// lit subject. Meter on the centre of the frame, where the subject stands, instead.
+		const imageTuning = `--metering spot`;
 		if (orientation == 'Horizontal') {
-			command = `rpicam-jpeg --output ${IMAGE_PATH}/${filename}.jpg --timeout 5000 --width 1920 --height 1080 -p 320,200,1280,720 --info-text "" --vflip --immediate`;
+			command = `rpicam-jpeg --output ${IMAGE_PATH}/${filename}.jpg --timeout 5000 --width 4608 --height 2592 -p 320,200,1280,720 --info-text "" --vflip --immediate ${imageTuning}`;
 		} else if (orientation == 'Vertical') {
-			command = `rpicam-jpeg --output ${IMAGE_PATH}/${filename}.jpg --timeout 5000 --width 1080 --height 1920 -p 650,0,600,1066 --info-text "" --vflip --immediate`;
+			command = `rpicam-jpeg --output ${IMAGE_PATH}/${filename}.jpg --timeout 5000 --width 1456 --height 2592 -p 650,0,600,1066 --info-text "" --vflip --immediate ${imageTuning}`;
 		}
 
 		console.log('about to take a picture')
@@ -136,7 +139,9 @@ module.exports = NodeHelper.create({
 		  // --vflip mirrors the capture so the preview behaves like a mirror; flip the saved photo back the right way round.
 		  const imageFile = `${IMAGE_PATH}/${filename}.jpg`;
 		  const unmirroredFile = `${IMAGE_PATH}/${filename}.unmirrored.jpg`;
-		  execFile('ffmpeg', ['-v', 'error', '-y', '-i', imageFile, '-vf', 'hflip', '-q:v', '1', unmirroredFile], (error) => {
+		  // jpegtran flips the JPEG losslessly; re-encoding would compress the photo a second time.
+		  // -perfect fails rather than trimming edge pixels (both sensor widths are multiples of 16, so it never should).
+		  execFile('jpegtran', ['-flip', 'horizontal', '-perfect', '-copy', 'all', '-outfile', unmirroredFile, imageFile], (error) => {
 		    if (error) {
 		      console.log('Could not un-mirror photo, uploading it as captured:', error.message);
 		    } else {
