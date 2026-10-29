@@ -146,8 +146,11 @@ module.exports = NodeHelper.create({
 	// Particle can take several seconds to answer and does not keep calls in order: during quick successive
 	// photos a late "useBooth" ran after the following "lightWall" and left the lights out. So only one call is in
 	// flight at a time, and while it runs only the newest request is kept, since the final position is all that matters.
-	moveLights: function (payload) {
-		if (this.lightsMoveInFlight) {
+	lightsMoveRetries: 4,
+	lightsMoveRetryDelay: 1000,
+
+	moveLights: function (payload, attempt = 0) {
+		if (this.lightsMoveInFlight && attempt === 0) {
 			this.pendingLightsMove = payload;
 			return;
 		}
@@ -173,9 +176,22 @@ module.exports = NodeHelper.create({
 		var endpoint = `https://api.particle.io/v1/devices/${payload.deviceId}/moveLights`;
 		fetch(endpoint, requestOptions)
 		.then(response => response.text())
-		.then(result => console.log("Got result from particle for " + payload.command, result))
+		.then(result => {
+			console.log("Got result from particle for " + payload.command, result);
+			// The Photon drops off the Particle cloud every few minutes; the cloud rejects the call straight
+			// away when it does, so try again shortly unless a newer move has already replaced this one.
+			const unreachable = result.includes("unreachable");
+			if (unreachable && attempt < self.lightsMoveRetries && !self.pendingLightsMove) {
+				console.log(`Photon unreachable, retrying ${payload.command} (${attempt + 1}/${self.lightsMoveRetries})`);
+				setTimeout(() => self.moveLights(payload, attempt + 1), self.lightsMoveRetryDelay);
+				return true;
+			}
+		})
 		.catch(error => console.log('error from particle:', error))
-		.finally(() => {
+		.then(retrying => {
+			if (retrying) {
+				return;
+			}
 			self.lightsMoveInFlight = false;
 			const nextMove = self.pendingLightsMove;
 			self.pendingLightsMove = null;
