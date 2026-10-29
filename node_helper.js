@@ -37,10 +37,6 @@ module.exports = NodeHelper.create({
 	},
 
 	uploadClip: function (destination) {
-		this.sendSocketNotification("STATUS_UPDATE", {
-			status: "STATUS_UPLOADING"
-		});
-
 		const uploadUniqueFile = require('./upload.js');
 		fs.readdir(VIDEO_PATH, function (err, files) {
 			if (err) {
@@ -48,11 +44,7 @@ module.exports = NodeHelper.create({
 			} else {
 				files.forEach(function (file) {
 					console.log("Uploading " + file);
-					uploadUniqueFile(file, VIDEO_PATH + file, destination, () => {
-						self.sendSocketNotification("STATUS_UPDATE", {
-							status: "STATUS_UPLOADED"
-						});
-					});
+					uploadUniqueFile(file, VIDEO_PATH + file, destination);
 				});
 			}
 		});
@@ -62,20 +54,17 @@ module.exports = NodeHelper.create({
 			} else {
 				files.forEach(function (file) {
 					console.log("Uploading " + file);
-					uploadUniqueFile(file, IMAGE_PATH + file, destination, () => {
-						self.sendSocketNotification("STATUS_UPDATE", {
-							status: "STATUS_UPLOADED"
-						});
-					});
+					uploadUniqueFile(file, IMAGE_PATH + file, destination);
 				});
 			}
 		});
 	},
 
 	recordClip: function (payload) {
-		const filename = 'clip_' + moment().format('YYYY[_]MM[_]DD[_]h:mm:ss');
+		const filename = 'clip_' + moment().format('YYYY[_]MM[_]DD[_]HH:mm:ss');
 		const recordingWindow = spawn('bash', ['~/start_picam.sh', payload.length, filename, payload.orientation], { shell: true });
 		var self = this;
+		var lightsTimer = null;
 
 		recordingWindow.stdout.on('data', function (data) {
 			if (data) {
@@ -87,8 +76,14 @@ module.exports = NodeHelper.create({
 				const errorOutput = data.toString();
 				console.log('stderr: ' + errorOutput);
 				// rpicam-vid starts recording as soon as its preview window appears, so start the on-screen countdown then.
-				if (errorOutput.includes('Made X/EGL preview window')) {
+				if (errorOutput.includes('Made X/EGL preview window') && !lightsTimer) {
 					self.sendSocketNotification('RECORDING_STARTED', payload.length);
+					// Time the lights from the preview window, not from launch: the camera takes over a second
+					// to start, and timing from launch moved the lights during the last moments of the clip. Recording
+					// itself begins ~1s after the preview appears, hence the extra 2s.
+					lightsTimer = setTimeout(function () {
+						self.sendSocketNotification('REVERSE_LIGHTS_BACK');
+					}, (payload.length + 2) * 1000);
 				}
 			}
 		});
@@ -96,19 +91,19 @@ module.exports = NodeHelper.create({
 			if (code) {
 				console.log('child process exited with code ' + code.toString());
 			}
+			// The camera never started, so the lights timer was never set; put the lights back now.
+			if (!lightsTimer) {
+				self.sendSocketNotification('REVERSE_LIGHTS_BACK');
+			}
 			// Upload once the script has finished: flipping and encoding the clip takes a variable few seconds,
 			// so a fixed timer could fire before the file exists.
 			self.sendSocketNotification('UPLOAD_CLIP');
 		});
-
-		setTimeout(function () {
-			self.sendSocketNotification('REVERSE_LIGHTS_BACK')
-		}, (1 + payload.length) * 1000);
 	},
 
 	takePicture: function (orientation) {
 		console.log("in takepicture function in node helper")
-		const filename = 'pic_' + moment().format('YYYY[_]MM[_]DD[_]h:mm:ss');
+		const filename = 'pic_' + moment().format('YYYY[_]MM[_]DD[_]HH:mm:ss');
 		var self = this;
 		var command = "";
 		if (orientation == 'Horizontal') {
@@ -148,7 +143,16 @@ module.exports = NodeHelper.create({
 		});
 	},
 
+	// Particle can take several seconds to answer and does not keep calls in order: during quick successive
+	// photos a late "useBooth" ran after the following "lightWall" and left the lights out. So only one call is in
+	// flight at a time, and while it runs only the newest request is kept, since the final position is all that matters.
 	moveLights: function (payload) {
+		if (this.lightsMoveInFlight) {
+			this.pendingLightsMove = payload;
+			return;
+		}
+		this.lightsMoveInFlight = true;
+
 		var myHeaders = new fetch.Headers();
 		myHeaders.append("Authorization", `Bearer ${payload.bearer}`);
 		myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
@@ -160,13 +164,24 @@ module.exports = NodeHelper.create({
 			method: 'POST',
 			headers: myHeaders,
 			body: urlencoded,
-			redirect: 'follow'
+			redirect: 'follow',
+			// A hung request would block every later move, so give up after 20s.
+			timeout: 20000
 		};
 
+		var self = this;
 		var endpoint = `https://api.particle.io/v1/devices/${payload.deviceId}/moveLights`;
 		fetch(endpoint, requestOptions)
 		.then(response => response.text())
-		.then(result => console.log("Got result from particle",result))
-		.catch(error => console.log('error from particle:', error));
+		.then(result => console.log("Got result from particle for " + payload.command, result))
+		.catch(error => console.log('error from particle:', error))
+		.finally(() => {
+			self.lightsMoveInFlight = false;
+			const nextMove = self.pendingLightsMove;
+			self.pendingLightsMove = null;
+			if (nextMove) {
+				self.moveLights(nextMove);
+			}
+		});
 	}
 });

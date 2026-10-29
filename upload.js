@@ -72,8 +72,8 @@ function authorize(credentials, callback, uploadInfo) {
     fs.readFile(TOKEN_PATH, (err, token) => {
         // Check if user hasnt created their token yet
         if (err) {
-            //return getAccessToken(oAuth2Client, callback);
-            console.log('Error loading client token file', err);
+            // Without a token there is nothing to upload with; leave the file in place for the next attempt.
+            return console.log('Error loading client token file', err);
         }
         oAuth2Client.setCredentials(JSON.parse(token));
         callback(oAuth2Client, uploadInfo);
@@ -127,7 +127,7 @@ function uploadUniqueFile(auth, uploadInfo, callback) {
         const files = res.data.files;
 
         // Check each of the 1000 files to make sure we haven't already uploaded this
-        for (i =0; i < files.length; i++) {
+        for (let i = 0; i < files.length; i++) {
             if (files[i].name === uploadInfo.uploadFileName) {
                 console.log(files[i].name + " is already in google drive, ignoring upload.");
                 return;
