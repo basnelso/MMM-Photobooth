@@ -154,18 +154,6 @@
   align-items: center;
 }
 
-.white-background {
-  position: relative;
-  left: 0px;
-  top: -250px;
-  height: 110vh;
-  width: 100vw;
-  border: 1px solid #ffffff;
-  background: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 
 .countdown-left-v {
   font-size: 300px;
@@ -227,22 +215,120 @@
   top: 10vh;
 }
 
-.text-wrapper {
+
+
+/* Capture feedback: only transform and opacity animate, so it all stays on the GPU compositor. */
+.captured {
+  color: #eaffea;
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.9);
+  animation: photobooth-pop 300ms cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+/* A bright frame that bursts out from the preview edges, drawn once and faded. */
+.photobooth-glow {
+  position: fixed;
+  border: 14px solid white;
+  border-radius: 6px;
+  box-shadow: 0 0 80px 30px rgba(255, 255, 255, 0.85), inset 0 0 60px rgba(255, 255, 255, 0.6);
+  box-sizing: border-box;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10000;
+}
+
+.photobooth-glow.burst {
+  animation: photobooth-burst 900ms ease-out;
+}
+
+.photobooth-frozen-photo {
+  position: fixed;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9999;
+  border: 6px solid white;
+  box-sizing: border-box;
+}
+
+.photobooth-frozen-photo.visible {
+  opacity: 1;
+  pointer-events: auto;
+  animation: photobooth-pop 300ms cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+@keyframes photobooth-pop {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes photobooth-burst {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.12); }
+}
+
+.photobooth-overlay-host {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+}
+
+.photobooth-overlay-host > * {
+  pointer-events: auto;
+  top: 0;
+  height: 100vh;
+}
+
+.look-up-arrows {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  flex-direction: column; /* Stack the arrow and text vertically */
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
-  text-align: center; /* Center the text horizontally */
-  gap: 20px; /* Adds space between the arrow and the text */
+  color: white;
+  line-height: 1;
 }
 
-.arrow-up {
-  font-size: 300px; /* Adjust size as needed */
-  color: black;
-  margin-bottom: 10px; /* Space between the arrow and text */
+.look-up-text {
+  white-space: nowrap;
 }
 
-.loadingText {
-  font-size: 200px; /* Adjust size as needed */
-  color: black;
+/* Red "recording" dots: between the arrows and text for horizontal clips, above each countdown number
+   for vertical ones (no room above that preview). The countdown re-renders every
+   second, restarting the animation, so the 1 s blink stays in step with the numbers. */
+.recording-dot {
+  display: inline-block;
+  border-radius: 50%;
+  background: #ff2d2d;
+  box-shadow: 0 0 30px rgba(255, 45, 45, 0.8);
+  animation: photobooth-recording-blink 1s steps(1, end) infinite;
+}
+
+.recording::before {
+  content: "";
+  display: block;
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: #ff2d2d;
+  box-shadow: 0 0 30px rgba(255, 45, 45, 0.8);
+  animation: photobooth-recording-blink 1s steps(1, end) infinite;
+}
+
+@keyframes photobooth-recording-blink {
+  50% { opacity: 0.15; }
+}
+
+/* Photo and video buttons while an earlier capture is still being processed. */
+.booth-button-disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.camera-starting-spinner {
+  font-size: 160px;
+  opacity: 0.8;
 }

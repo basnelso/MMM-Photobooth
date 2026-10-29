@@ -33,6 +33,35 @@ To properly set up uploading video compilations to Google Drive:
 	2. The link should be of the sort: https://drive.google.com/drive/u/0/folders/YOUR_DRIVE_FOLDER, paste YOUR_DRIVE_FOLDER into the module config.
 
 
+## Capture screen
+While a photo or clip is being taken the mirror goes black around the camera preview:
+
+- "Starting camera…" spinners cover the second or so before the camera shows frames.
+- A countdown on each side, with "Look at camera" and arrows above horizontal shots, and blinking red dots while a clip records.
+- A checkmark and a glow burst when the photo is taken, then the photo itself pops in where the preview was and stays for
+  `frozenPhotoDuration` (tap to dismiss).
+- The capture buttons are greyed out until the previous capture has finished processing (at most
+  `captureProcessingTimeout` after it).
+
+| Option | Default | Description |
+|---|---|---|
+| `frozenPhotoDuration` | `5000` | How long (ms) the photo just taken stays on screen. |
+| `photoCameraWarmup` | `500` | How long (ms) the spinners stay up after the photo preview window opens, while it is still black. |
+| `captureProcessingTimeout` | `15000` | Longest time (ms) the capture buttons stay greyed out after a capture ends. |
+
+The overlay is positioned for rpicam's preview rectangles (`-p` in `node_helper.js` and `start_picam.sh`) on a
+1920x1080 screen. On Raspberry Pi OS with labwc, remove the preview window's title bar, which otherwise covers the
+bottom of the "Look at camera" row, by adding this inside `<openbox_config>` in `~/.config/labwc/rc.xml`:
+
+```xml
+<windowRules><windowRule title="rpicam-app" serverDecoration="no"/></windowRules>
+```
+
+then run `labwc --reconfigure` (or log out and back in).
+
+The screen-sized copy of each photo shown on the mirror is made with `djpeg`/`cjpeg` and the saved photo is un-mirrored
+with `jpegtran`, all from `libjpeg-turbo-progs` (`sudo apt install libjpeg-turbo-progs`).
+
 ## Dependencies
 ## Open Source Licenses
 The MIT License (MIT)

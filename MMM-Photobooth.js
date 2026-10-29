@@ -19,6 +19,10 @@ Module.register('MMM-Photobooth',
 		minColorTemp: 153,
 		maxColorTemp: 454,
 		previewRestoreDelay: 2000,
+		frozenPhotoDuration: 5000,
+		photoPopDelay: 0,
+		captureProcessingTimeout: 15000,
+		photoCameraWarmup: 500,
     },
 
 	start: function()
@@ -31,34 +35,180 @@ Module.register('MMM-Photobooth',
 		this.orientation = ''
 		this.loadingPreview = false;
 		this.recordingClip = false;
+		this.photoCaptured = false;
+		this.frozenPhotoShowing = false;
+		this.capturesProcessing = new Set();
+		this.createShutterLayers();
+	},
+
+	// The glow and frozen photo live on the body rather than in getDom, so updateDom re-renders
+	// during capture don't restart their animations or reload the image.
+	createShutterLayers: function() {
+		this.frozenPhoto = document.createElement("img");
+		this.frozenPhoto.className = 'photobooth-frozen-photo';
+		this.overlayHost = document.createElement("div");
+		this.overlayHost.className = 'photobooth-overlay-host';
+		document.body.appendChild(this.overlayHost);
+
+		this.glow = document.createElement("div");
+		this.glow.className = 'photobooth-glow';
+
+		var self = this;
+		this.frozenPhoto.addEventListener('click', function () { self.hideFrozenPhoto(); });
+
+		document.body.appendChild(this.frozenPhoto);
+		document.body.appendChild(this.glow);
+	},
+
+	// The preview only shows for a moment before the countdown starts, so fill the gap between it and the
+	// camera with arrows angled up at the lens.
+	createLookUpArrows: function() {
+		const scale = window.devicePixelRatio || 1;
+		const row = document.createElement("div");
+		row.className = 'look-up-arrows';
+		// Sized in screen pixels to the 1280x200 gap above the horizontal preview. This assumes the preview
+		// window has no title bar (see the README); with one, the bottom of this row is hidden behind it.
+		row.style.width = 1280 / scale + 'px';
+		row.style.height = 200 / scale + 'px';
+		row.style.fontSize = 170 / scale + 'px';
+
+		const leftArrow = document.createElement("span");
+		leftArrow.innerHTML = `&#x2197;`;
+		const text = document.createElement("span");
+		text.className = 'look-up-text';
+		text.style.fontSize = 80 / scale + 'px';
+		text.innerHTML = 'Look at camera';
+		const rightArrow = document.createElement("span");
+		rightArrow.innerHTML = `&#x2196;`;
+
+		row.appendChild(leftArrow);
+		if (this.recordingClip) row.appendChild(this.createRecordingDot(scale));
+		row.appendChild(text);
+		if (this.recordingClip) row.appendChild(this.createRecordingDot(scale));
+		row.appendChild(rightArrow);
+		return row;
+	},
+
+	// rpicam-vid's preview window sits empty for ~1.5 s while the camera gets ready; it draws over the page,
+	// so fill the space around it with spinners in place of the countdown.
+	buildCameraStartingDom: function() {
+		const isHorizontal = this.orientation == 'Horizontal';
+		const background = document.createElement("div");
+		background.className = 'black-background';
+		for (const side of ['left', 'right']) {
+			const spinner = document.createElement("p");
+			spinner.className = 'countdown-' + side + (isHorizontal ? '-h' : '-v');
+			const icon = document.createElement("i");
+			icon.className = 'fa-solid fa-circle-notch fa-spin camera-starting-spinner';
+			spinner.appendChild(icon);
+			background.appendChild(spinner);
+		}
+		if (isHorizontal) {
+			const scale = window.devicePixelRatio || 1;
+			const row = document.createElement("div");
+			row.className = 'look-up-arrows';
+			row.style.width = 1280 / scale + 'px';
+			row.style.height = 200 / scale + 'px';
+			const text = document.createElement("span");
+			text.className = 'look-up-text';
+			text.style.fontSize = 80 / scale + 'px';
+			text.innerHTML = 'Starting camera&hellip;';
+			row.appendChild(text);
+			background.appendChild(row);
+		}
+		return background;
+	},
+
+	createRecordingDot: function(scale) {
+		const dot = document.createElement("span");
+		dot.className = 'recording-dot';
+		dot.style.width = dot.style.height = 70 / scale + 'px';
+		return dot;
+	},
+
+	// rpicam places its preview in screen pixels; the page is zoomed, so convert to CSS pixels.
+	placeOverPreview: function(element, rect) {
+		const scale = window.devicePixelRatio || 1;
+		element.style.left = rect.left / scale + 'px';
+		element.style.top = rect.top / scale + 'px';
+		element.style.width = rect.width / scale + 'px';
+		element.style.height = rect.height / scale + 'px';
+	},
+
+	// Restarting a CSS animation needs the class removed and a reflow before it is added back.
+	restartAnimation: function(element, className) {
+		element.classList.remove(className);
+		void element.offsetWidth;
+		element.classList.add(className);
+	},
+
+	photoWasCaptured: function(rect) {
+		this.photoCaptured = true;
+		// Clear the checkmarks as soon as the capture ends (updateDom is asynchronous), leaving black
+		// until the frozen photo pops in.
+		this.frozenPhotoShowing = true;
+		this.overlayHost.replaceChildren(this.buildDom());
+		this.placeOverPreview(this.glow, rect);
+		this.restartAnimation(this.glow, 'burst');
+	},
+
+	showFrozenPhoto: function(photo) {
+		var self = this;
+		const image = this.frozenPhoto;
+		this.frozenPhotoShowing = true;
+		image.onload = function () {
+			self.placeOverPreview(image, photo.rect);
+			setTimeout(function () { self.restartAnimation(image, 'visible'); }, self.config.photoPopDelay);
+			clearTimeout(self.frozenPhotoTimer);
+			self.frozenPhotoTimer = setTimeout(function () { self.hideFrozenPhoto(); }, self.config.frozenPhotoDuration);
+		};
+		image.onerror = function () { self.hideFrozenPhoto(); };
+		image.src = photo.url;
+	},
+
+	hideFrozenPhoto: function() {
+		clearTimeout(this.frozenPhotoTimer);
+		this.frozenPhoto.classList.remove('visible');
+		this.frozenPhoto.onload = null;
+		// Drop the decoded image so its memory is freed.
+		this.frozenPhoto.removeAttribute('src');
+		this.frozenPhotoShowing = false;
+		// The checkmarks stay up with the frozen photo, so clear the countdown overlay with it.
+		if (this.photoCaptured) {
+			this.photoCaptured = false;
+			this.pictureTimer = -1;
+			this.updateDom();
+		}
 	},
 
 	getStyles: function() {
 		return ["MMM-Photobooth.css"]
 	},
 
+	// The full-screen countdown backgrounds are moved onto the body: inside the module's region they sat
+	// under later regions such as MMM-OnSpotify, which z-index on the region didn't fix.
+	getDom: function() {
+		const dom = this.buildDom();
+		const isFullScreen = dom.classList.contains('black-background');
+		if (isFullScreen) {
+			this.overlayHost.replaceChildren(dom);
+			return document.createElement("div");
+		}
+		this.overlayHost.replaceChildren();
+		return dom;
+	},
+
 	// Add in buttons to control lights and pick the color tempurature
 	// Add in uploading/uploaded message
-	getDom: function() {
-		if (this.loadingPreview) {
-			const whiteBackground = document.createElement("div");
-			whiteBackground.className = 'white-background'
-
-			const loadingArrow = document.createElement("p");
-			loadingArrow.className = 'arrow-up';
-			loadingArrow.innerHTML = `&#x2191;`;
-
-			const loadingText = document.createElement("p");
-			loadingText.className = 'loadingText';
-			loadingText.innerHTML = 'Look at the Camera';
-
-			const textWrapper = document.createElement("div");
-			textWrapper.className = 'text-wrapper';
-			textWrapper.appendChild(loadingArrow);
-			textWrapper.appendChild(loadingText);
-			
-			whiteBackground.appendChild(textWrapper);
-			return whiteBackground;
+	buildDom: function() {
+		// From the button press until the camera shows frames, the same spinners cover the wait.
+		if (this.loadingPreview || this.cameraStarting) {
+			return this.buildCameraStartingDom();
+		} else if (this.frozenPhotoShowing) {
+			// Just the dark backdrop behind the frozen photo; the checkmarks have done their job.
+			const blackBackground = document.createElement("div");
+			blackBackground.className = 'black-background';
+			return blackBackground;
 		} else if (this.pictureTimer >= 0) {
 			const isHorizontalPhoto = this.orientation == 'Horizontal'
 			const whiteBackground = document.createElement("div");
@@ -75,12 +225,20 @@ Module.register('MMM-Photobooth',
 			}
 
 
+			// Horizontal clips put the recording dots in the row above the preview instead.
+			if (this.recordingClip && !isHorizontalPhoto) {
+				countdownLeft.classList.add('recording');
+				countdownRight.classList.add('recording');
+			}
+
 			if (this.pictureTimer > 0) {
 				countdownLeft.appendChild(document.createTextNode(this.pictureTimer))
 				countdownRight.appendChild(document.createTextNode(this.pictureTimer))
 			} else {
-				countdownLeft.appendChild(document.createTextNode("X"))
-				countdownRight.appendChild(document.createTextNode("X"))
+				countdownLeft.appendChild(document.createTextNode("\u2713"))
+				countdownRight.appendChild(document.createTextNode("\u2713"))
+				countdownLeft.classList.add('captured');
+				countdownRight.classList.add('captured');
 			}
 
 			const arrows = document.createElement("div");
@@ -100,6 +258,11 @@ Module.register('MMM-Photobooth',
 				console.log("horizontal photo")
 				arrowl.className = 'hidden-arrow';
 				arrowr.className = 'hidden-arrow';
+				arrowc.className = 'hidden-arrow';
+				// The photo is being taken by the time the checkmarks show, so the arrows have done their job.
+				if (this.pictureTimer > 0) {
+					whiteBackground.appendChild(this.createLookUpArrows());
+				}
 			} else {
 				console.log('vertical photo')
 				arrowc.className = 'hidden-arrow';
@@ -111,7 +274,11 @@ Module.register('MMM-Photobooth',
 
 			whiteBackground.appendChild(countdownLeft);
 			whiteBackground.appendChild(countdownRight);
-			whiteBackground.appendChild(arrows);
+			// Horizontal shots use the look-up row instead; the old arrows, hidden in black, sat on top of it
+			// and cut through the recording dots.
+			if (!isHorizontalPhoto) {
+				whiteBackground.appendChild(arrows);
+			}
 
 			return whiteBackground;
 		}
@@ -169,9 +336,11 @@ Module.register('MMM-Photobooth',
 
 	createCaptureButton: function(type, orientation) {
 		const button = document.createElement("div");
-		button.className = 'booth-button';
+		const processing = this.capturesProcessing.size > 0;
+		button.className = processing ? 'booth-button booth-button-disabled' : 'booth-button';
 		var self = this;
 		button.addEventListener('click', function () {
+			if (self.capturesProcessing.size > 0) return;
 			self.orientation = orientation
 			self.lightsOn();
 			if (type == 'Video') {
@@ -321,6 +490,7 @@ Module.register('MMM-Photobooth',
 	recordClip: function (orientation) {
 		const payload = {
 			length: this.config.videoRecodringLength,
+			captureId: this.nextCaptureId(),
 			orientation: orientation
 		}
 		this.sendSocketNotification('RECORD_CLIP', payload);
@@ -328,29 +498,89 @@ Module.register('MMM-Photobooth',
 		this.updateDom();
 	},
 
+	// A clip is still encoding for a few seconds after it stops recording, so a new capture can start before
+	// the previous one's UPLOAD_CLIP arrives. Numbering captures lets that late message leave the new one alone.
+	nextCaptureId: function () {
+		this.captureId = (this.captureId || 0) + 1;
+		const captureId = this.captureId;
+		this.capturesProcessing.add(captureId);
+		var self = this;
+		// Backstop in case the camera never starts, so capturedAt is never called.
+		setTimeout(function () { self.captureFinished(captureId); }, 60000);
+		return captureId;
+	},
+
+	// The buttons stay greyed out at most this long after the shot or clip ends, even if processing is still
+	// running (a lost UPLOAD_CLIP would otherwise leave them greyed out).
+	capturedAt: function () {
+		const captureId = this.captureId;
+		var self = this;
+		setTimeout(function () { self.captureFinished(captureId); }, this.config.captureProcessingTimeout);
+	},
+
+	captureFinished: function (captureId) {
+		if (!this.capturesProcessing.delete(captureId)) return;
+		// Re-rendering mid-countdown would replay its animations; the buttons refresh when the overlay clears.
+		const overlayShowing = this.loadingPreview || this.pictureTimer >= 0 || this.frozenPhotoShowing;
+		if (!overlayShowing) this.updateDom();
+	},
+
 	takePicture: function (orientation) {
-		this.sendSocketNotification('TAKE_PICTURE', orientation);
+		this.sendSocketNotification('TAKE_PICTURE', { orientation: orientation, captureId: this.nextCaptureId() });
 		this.loadingPreview = true;
 		this.updateDom();
 	},
 
 	socketNotificationReceived: function(notification, payload) {
 		if (notification == 'UPLOAD_CLIP') {
+			this.capturesProcessing.delete(payload?.captureId);
+		}
+		if (notification == 'UPLOAD_CLIP' && payload?.captureId !== this.captureId) {
+			if (!(this.loadingPreview || this.pictureTimer >= 0 || this.frozenPhotoShowing)) this.updateDom();
+			this.sendSocketNotification(notification, this.config.driveDestination);
+		} else if (notification == 'UPLOAD_CLIP') {
 			// The capture process has exited. Clear every overlay here as well: if the camera failed to start,
-			// no preview notification arrives and the white "Look at the Camera" screen would otherwise stay up.
+			// no preview notification arrives and the camera-starting spinners would otherwise stay up.
 			this.loadingPreview = false;
 			this.recordingClip = false;
-			this.pictureTimer = -1;
-			this.updateDom();
+			this.cameraStarting = false;
+			// The black screen is waiting for a frozen photo; if none is coming, clear it now.
+			if (this.frozenPhotoShowing && !this.frozenPhoto.getAttribute('src')) {
+				this.hideFrozenPhoto();
+			} else if (!this.frozenPhotoShowing) {
+				this.photoCaptured = false;
+				this.pictureTimer = -1;
+				this.updateDom();
+			}
 			this.sendSocketNotification(notification, this.config.driveDestination);
+		} else if (notification == 'PHOTO_CAPTURED') {
+			this.capturedAt();
+			this.photoWasCaptured(payload);
+		} else if (notification == 'PHOTO_READY') {
+			this.showFrozenPhoto(payload);
 		} else if (notification == 'REVERSE_LIGHTS_BACK') {
 			this.lightsOff()
 		} else if (notification == 'PREVIEW_WINDOW_OPENED') {
+			// The photo preview window is black for its first ~0.5 s and rpicam-jpeg logs nothing when frames
+			// start, so show the camera-starting spinners for a fixed time. They take the first half of the "5",
+			// which keeps every later number on its second and the checkmark just before the shot.
+			var self = this;
 			this.loadingPreview = false;
-			this.pictureTimer = 6;
-			this.updatePictureTimer();
+			this.cameraStarting = true;
+			this.updateDom();
+			setTimeout(function () {
+				self.cameraStarting = false;
+				self.pictureTimer = 5;
+				self.updateDom();
+				setTimeout(function () { self.updatePictureTimer(); }, 1000 - self.config.photoCameraWarmup);
+			}, this.config.photoCameraWarmup);
+		} else if (notification == 'VIDEO_CAMERA_STARTING') {
+			this.loadingPreview = false;
+			this.cameraStarting = true;
+			this.updateDom();
 		} else if (notification == 'RECORDING_STARTED') {
 			this.loadingPreview = false;
+			this.cameraStarting = false;
 			this.pictureTimer = payload + 1; // updatePictureTimer decrements before the first render
 			this.recordingClip = true;
 			this.updatePictureTimer();
@@ -379,6 +609,7 @@ Module.register('MMM-Photobooth',
 			// Unlike a photo, the clip has nothing left to capture once the countdown ends, so clear the overlay
 			// instead of leaving it up until the upload starts.
 			this.recordingClip = false;
+			this.capturedAt();
 			setTimeout(function () {
 				self.pictureTimer = -1;
 				self.updateDom();

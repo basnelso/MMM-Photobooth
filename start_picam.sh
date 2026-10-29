@@ -37,9 +37,11 @@ audio_started=$(date +%s.%N)
 # the default buffer count left almost no CMA free alongside MagicMirror.
 # --vflip (not --rotation 180) matches the photo command: the camera is mounted upside down, and this also mirrors
 # the preview so it behaves like looking in a mirror.
+# Spot metering, as for photos: the dark room behind the subject fooled the default centre-weighted metering
+# into overexposing them.
 # stderr is passed through untouched because node_helper.js watches it for the preview-window line.
 rpicam-vid -t "$((recording_length * 1000))" --mode 2304:1296:10:P --buffer-count 4 "${size[@]}" --framerate 30 \
-	--vflip --autofocus-mode continuous -b 10000000 --profile high \
+	--vflip --autofocus-mode continuous --metering spot -b 10000000 --profile high \
 	-p "$preview" --info-text "" \
 	--codec libav --libav-format mp4 -o "$work_dir/video.mp4" 2>&1 >/dev/null \
 	| while IFS= read -r line; do
