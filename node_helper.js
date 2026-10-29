@@ -14,6 +14,10 @@ const IMAGE_PATH = './modules/MMM-Photobooth/pictures/clips/';
 module.exports = NodeHelper.create({
 	start: function () {
 		console.log("Starting node helper for: " + this.name);
+		// The capture folders are untracked and empty after each upload; if one goes missing the camera
+		// can't save and its preview hangs on screen, so make sure they exist.
+		fs.mkdirSync(IMAGE_PATH, { recursive: true });
+		fs.mkdirSync(VIDEO_PATH, { recursive: true });
 	},
 
 	socketNotificationReceived: function (notification, payload) {
