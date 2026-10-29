@@ -15,7 +15,7 @@ Module.register('MMM-Photobooth',
 		linkText: '',
 		deviceId: '',
 		// Hue colour temperature in mireds: lower is cooler. 153-454 is the range Hue white-ambiance bulbs support.
-		defaultColorTemp: 153,
+		defaultColorTemp: 300,
 		minColorTemp: 153,
 		maxColorTemp: 454,
 		previewRestoreDelay: 2000,
